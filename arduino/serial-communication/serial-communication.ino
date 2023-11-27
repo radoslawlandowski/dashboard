@@ -25,6 +25,7 @@ int firstSensor = 0;    // first analog sensor
 int secondSensor = 0;   // second analog sensor
 int thirdSensor = 0;    // digital sensor
 int inByte = 0;         // incoming serial byte
+#include <ArduinoJson.h>
 
 void setup() {
   // start serial port at 9600 bps:
@@ -39,11 +40,21 @@ void setup() {
 
 void loop() {
   // if we get a valid byte, read analog ins:
+
+
   if (Serial.available() > 0) {
+
+    StaticJsonDocument<200> doc;
+    doc["timestamp"] = millis();
+    doc["value"] = "123:123123";
+  
+    // Send the JSON document over the "link" serial port
+    serializeJson(doc, Serial);
+
+    Serial.println();
 
     delay(1000);
 
-    Serial.println("Hello");
   }
 }
 
