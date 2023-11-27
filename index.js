@@ -12,9 +12,9 @@ port.write('Hello!')
 
 // Read data that is available but keep the stream from entering //"flowing mode"
 port.on('readable', function () {
-    port.write('Hello!')
-
     port.read();
+    port.write("Radek")
+    port.write('\n')
 });
 
 port.on('data', function (data) {

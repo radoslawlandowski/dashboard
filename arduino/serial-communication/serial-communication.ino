@@ -44,16 +44,19 @@ void loop() {
 
   if (Serial.available() > 0) {
 
+    
+    String received = Serial.readStringUntil('\n');
+
     StaticJsonDocument<200> doc;
     doc["timestamp"] = millis();
-    doc["value"] = "123:123123";
+    doc["value"] = received;
   
     // Send the JSON document over the "link" serial port
     serializeJson(doc, Serial);
 
     Serial.println();
 
-    delay(1000);
+    delay(100);
 
   }
 }
