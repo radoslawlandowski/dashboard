@@ -37,7 +37,7 @@ export class ArduinoSerialPortConnectionService {
       }
     } while (!arduino)
 
-    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
+    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 115200, (data: string) => {
       console.log(data)
     })
 

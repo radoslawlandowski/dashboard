@@ -17,7 +17,7 @@ export class SerialPortListenerService {
 
   listenAndEmitOnNewline(
     devicePath: string,
-    baudRate: number = 9600,
+    baudRate: number = 115200,
     onData: (data: string) => void,
   ): {port: SerialPort, readlineParser: ReadlineParser} {
 
