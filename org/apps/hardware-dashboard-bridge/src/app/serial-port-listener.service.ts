@@ -19,7 +19,7 @@ export class SerialPortListenerService {
     devicePath: string,
     baudRate: number = 9600,
     onData: (data: string) => void,
-  ) {
+  ): {port: SerialPort, readlineParser: ReadlineParser} {
 
     const port = new SerialPort({ path: devicePath, baudRate: baudRate })
 
@@ -29,12 +29,10 @@ export class SerialPortListenerService {
       port.read();
     });
 
-    port.on('data', function (data) {
-
-    });
-
     const readlineParser = port.pipe(new ReadlineParser())
 
     readlineParser.on('data', onData)
+
+    return {port: port, readlineParser: readlineParser}
   }
 }

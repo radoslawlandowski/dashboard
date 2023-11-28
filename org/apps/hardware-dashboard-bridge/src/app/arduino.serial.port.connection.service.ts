@@ -1,6 +1,8 @@
 import {SerialPortListenerService} from "./serial-port-listener.service";
 import {PortInfo} from "@serialport/bindings-interface";
 import {Injectable, Logger} from "@nestjs/common";
+import {ReadlineParser} from "@serialport/parser-readline";
+import {SerialPort} from "serialport";
 
 @Injectable()
 export class ArduinoSerialPortConnectionService {
@@ -22,9 +24,11 @@ export class ArduinoSerialPortConnectionService {
       }
     } while (!arduino)
 
-    this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
+    const readline: {port: SerialPort, readlineParser: ReadlineParser} = this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
       console.log(data)
     })
+
+    readline.readlineParser.on('data', (value) => console.log("Rade" + value))
   }
 
   private sleep(ms: number): Promise<void> {
