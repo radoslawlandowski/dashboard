@@ -14,11 +14,16 @@ export interface HardwareDashboardEvent<T> {
 
 export function App() {
   const ColorSwitcher = ({isRed}: any) => {
-    const color = isRed ? 'red' : 'green';
+    const style = {
+      backgroundColor: isRed ? "red" : "green",
+      width: '100px',
+      height: '100px',
+      borderRadius: '50%'
+    }
 
     return (
-      <div style={{color}}>
-        {isRed ? 'Red' : 'Green'} Text
+      <div style={style}>
+        
       </div>
     );
   };
@@ -34,7 +39,9 @@ export function App() {
 
       console.log(messages)
 
-      setMessages((prevState: HardwareDashboardEvent<any>[]) => [...prevState, data].slice(-10));
+      setIsRed(data.payload.value === 0)
+
+      setMessages((prevState: HardwareDashboardEvent<any>[]) => [data, ...prevState].slice(0, 10));
 
       console.log(messages)
     });
@@ -48,7 +55,7 @@ export function App() {
     <div>
       <ColorSwitcher isRed={isRed}/>
       <div>
-        {messages.reverse().map((message: HardwareDashboardEvent<any>, index: number) => (
+        {messages.map((message: HardwareDashboardEvent<any>, index: number) => (
           <p key={index}>Date: '{message.timestamp}': Module Type: '{message.moduleType}' - Module Identifier: '{message.moduleIdentifier}' - Payload: {JSON.stringify(message.payload)} </p>
         ))}
       </div>

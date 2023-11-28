@@ -42,8 +42,6 @@ void loop() {
   // if we get a valid byte, read analog ins:
 
   if (Serial.available() > 0) {
-    String received = Serial.readStringUntil('\n');
-
     StaticJsonDocument<200> doc;
     doc["timestamp"] = millis();
     doc["moduleType"] = "DigitalPin";
@@ -55,9 +53,6 @@ void loop() {
     serializeJson(doc, Serial);
 
     Serial.println();
-
-    delay(100);
-
   }
 }
 
