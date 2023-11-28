@@ -3,6 +3,10 @@ import {PortInfo} from "@serialport/bindings-interface";
 import {Injectable, Logger} from "@nestjs/common";
 import {ReadlineParser} from "@serialport/parser-readline";
 import {SerialPort} from "serialport";
+import {EventEmitter2} from "@nestjs/event-emitter";
+import {DigitalPinHardwareDashboardEvent} from "./contract/digital-pin-hardware-dashboard-event";
+import {HardwareDashboardEvent} from "./contract/hardware-dashboard-event";
+import {plainToInstance} from "class-transformer";
 
 @Injectable()
 export class ArduinoSerialPortConnectionService {
@@ -10,7 +14,7 @@ export class ArduinoSerialPortConnectionService {
 
   readline: {port: SerialPort, readlineParser: ReadlineParser}
 
-  constructor(readonly listener: SerialPortListenerService) {
+  constructor(readonly listener: SerialPortListenerService, private eventEmitter: EventEmitter2) {
   }
 
   async write(value: string): Promise<void> {
@@ -34,7 +38,20 @@ export class ArduinoSerialPortConnectionService {
       console.log(data)
     })
 
-    this.readline.readlineParser.on('data', (value) => console.log("Rade" + value))
+    this.readline.readlineParser.on('data', (value: string) => {
+      const parsedValue: object = JSON.parse(value)
+
+      if(parsedValue['moduleType'] === 'DigitalPin') {
+        const eventInstance: HardwareDashboardEvent<any> = plainToInstance(DigitalPinHardwareDashboardEvent, parsedValue)
+
+        this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardEvent(
+          eventInstance.moduleIdentifier, eventInstance.payload
+        ))
+      } else {
+        console.log(value)
+        console.log(parsedValue)
+      }
+    })
   }
 
   private sleep(ms: number): Promise<void> {

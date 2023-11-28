@@ -1,5 +1,13 @@
-### Send POST request with json body
+### Connect
 POST http://localhost:3000/api/hardware-dashboard-bridge/connect
+Content-Type: application/json
+
+{
+
+}
+
+### Test
+POST http://localhost:3000/api/hardware-dashboard-bridge/test
 Content-Type: application/json
 
 {
