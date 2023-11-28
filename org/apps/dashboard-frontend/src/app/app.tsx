@@ -9,6 +9,7 @@ export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
   moduleIdentifier: string
   payload: T
+  timestamp: string
 }
 
 export function App() {
@@ -29,13 +30,13 @@ export function App() {
     const socket = io('http://localhost:3000'); // Replace with your server URL
 
     socket.on('message', (data: HardwareDashboardEvent<any>) => {
-      setMessages( // Replace the state
-        [ // with a new array
-          ...messages, // that contains all the old items
-          data// and one new item at the end
-        ]
-      );
       console.log(data)
+
+      console.log(messages)
+
+      setMessages((prevState: HardwareDashboardEvent<any>[]) => [...prevState, data].slice(-10));
+
+      console.log(messages)
     });
 
     return () => {
@@ -47,8 +48,8 @@ export function App() {
     <div>
       <ColorSwitcher isRed={isRed}/>
       <div>
-        {messages.map((message: HardwareDashboardEvent<any>, index: number) => (
-          <p key={index}>{message.moduleIdentifier}</p>
+        {messages.reverse().map((message: HardwareDashboardEvent<any>, index: number) => (
+          <p key={index}>Date: '{message.timestamp}': Module Type: '{message.moduleType}' - Module Identifier: '{message.moduleIdentifier}' - Payload: {JSON.stringify(message.payload)} </p>
         ))}
       </div>
     </div>

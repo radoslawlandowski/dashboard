@@ -8,6 +8,7 @@ export class DigitalPinHardwareDashboardEvent implements HardwareDashboardEvent<
   moduleType: HardwareDashboardModuleTypes = HardwareDashboardModuleTypes.DigitalPin
   moduleIdentifier: string
   payload: DigitalPinHardwareDashboardEventPayload
+  timestamp: Date = new Date()
 
   constructor(moduleIdentifier: string, payload: DigitalPinHardwareDashboardEventPayload) {
     this.moduleIdentifier = moduleIdentifier

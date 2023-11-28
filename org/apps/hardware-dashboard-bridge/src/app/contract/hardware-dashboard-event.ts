@@ -2,6 +2,7 @@ export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
   moduleIdentifier: string
   payload: T
+  timestamp: Date
 }
 
 export enum HardwareDashboardModuleTypes {

@@ -8,6 +8,7 @@ export class AnalogPinHardwareDashboardEvent implements HardwareDashboardEvent<A
   moduleType: HardwareDashboardModuleTypes = HardwareDashboardModuleTypes.AnalogPin
   moduleIdentifier: string
   payload: AnalogPinHardwareDashboardEventPayload
+  timestamp: Date = new Date()
 
   constructor(moduleIdentifier: string, payload: AnalogPinHardwareDashboardEventPayload) {
     this.moduleIdentifier = moduleIdentifier
