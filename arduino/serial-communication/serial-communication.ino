@@ -34,22 +34,22 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  pinMode(2, INPUT);   // digital sensor is on digital pin 2
+  pinMode(0, INPUT);   // digital sensor is on digital pin 0
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
   // if we get a valid byte, read analog ins:
 
-
   if (Serial.available() > 0) {
-
-    
     String received = Serial.readStringUntil('\n');
 
     StaticJsonDocument<200> doc;
     doc["timestamp"] = millis();
-    doc["value"] = received;
+    doc["moduleType"] = "DigitalPin";
+    doc["moduleIdentifier"] = "0";
+    JsonObject payload  = doc.createNestedObject("payload")
+    payload["value"] = digitalRead(0)
   
     // Send the JSON document over the "link" serial port
     serializeJson(doc, Serial);
