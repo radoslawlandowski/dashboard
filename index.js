@@ -23,7 +23,6 @@ port.on('data', function (data) {
 
 const parser = port.pipe(new ReadlineParser())
 
-
 // const lineStream = port.pipe(new Readline())
 
 parser.on('data', (value) => console.log(value))
