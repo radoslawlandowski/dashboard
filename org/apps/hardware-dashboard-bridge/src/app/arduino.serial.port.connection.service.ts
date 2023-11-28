@@ -39,17 +39,22 @@ export class ArduinoSerialPortConnectionService {
     })
 
     this.readline.readlineParser.on('data', (value: string) => {
-      const parsedValue: object = JSON.parse(value)
+      try {
 
-      if(parsedValue['moduleType'] === 'DigitalPin') {
-        const eventInstance: HardwareDashboardEvent<any> = plainToInstance(DigitalPinHardwareDashboardEvent, parsedValue)
+        const parsedValue: object = JSON.parse(value)
 
-        this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardEvent(
-          eventInstance.moduleIdentifier, eventInstance.payload
-        ))
-      } else {
-        console.log(value)
-        console.log(parsedValue)
+        if(parsedValue['moduleType'] === 'DigitalPin') {
+          const eventInstance: HardwareDashboardEvent<any> = plainToInstance(DigitalPinHardwareDashboardEvent, parsedValue)
+  
+          this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardEvent(
+            eventInstance.moduleIdentifier, eventInstance.payload
+          ))
+        } else {
+          console.log(value)
+          console.log(parsedValue)
+        }
+      } catch(e) {
+        console.log(e)
       }
     })
   }
