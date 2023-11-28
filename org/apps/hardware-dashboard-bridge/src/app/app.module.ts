@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 
-import { SerialPortListenerService } from './serial-port-listener.service';
+import { AppController } from './app.controller';
+import {SerialPortListenerService} from "./serial-port-listener.service";
+import {ArduinoSerialPortConnectionService} from "./arduino.serial.port.connection.service";
 
 @Module({
   imports: [],
-  controllers: [],
-  providers: [SerialPortListenerService],
+  controllers: [AppController],
+  providers: [SerialPortListenerService, ArduinoSerialPortConnectionService],
 })
 export class AppModule {}

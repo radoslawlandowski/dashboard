@@ -1,35 +1,14 @@
-import { Logger } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import {PortInfo} from "@serialport/bindings-interface"
+import {Logger} from '@nestjs/common';
+import {NestFactory} from '@nestjs/core';
 
-import { AppModule } from './app/app.module';
-import {SerialPortListenerService} from "./app/serial-port-listener.service";
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+import {AppModule} from './app/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(AppModule);
-  await app.init()
-
-  const listener = app.get(SerialPortListenerService)
-
-  let arduino: PortInfo | undefined
-  do {
-    arduino = await listener.findDevice({vendorId: '2341', productId: '0043'})
-
-    if(!arduino) {
-      Logger.error("Device not connected! Awaiting 3 seconds before next attempt...")
-  
-      await sleep(3000)
-    }
-  } while (!arduino)
-
-
-  listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
-    console.log(data)
-  })
+  const app = await NestFactory.create(AppModule);
+  const globalPrefix = 'api';
+  app.setGlobalPrefix(globalPrefix);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
 
   Logger.log(
     `🚀 Application is running!`
