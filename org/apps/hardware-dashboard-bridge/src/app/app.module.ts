@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { SerialPortListenerService } from './serial-port-listener.service';
 
 @Module({
   imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [SerialPortListenerService],
 })
 export class AppModule {}
