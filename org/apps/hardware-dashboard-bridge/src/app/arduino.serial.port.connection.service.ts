@@ -8,10 +8,16 @@ import {SerialPort} from "serialport";
 export class ArduinoSerialPortConnectionService {
   static ARDUINO_DEVICE_DATA = {vendorId: '2341', productId: '0043'};
 
+  readline: {port: SerialPort, readlineParser: ReadlineParser}
+
   constructor(readonly listener: SerialPortListenerService) {
   }
 
-  async run(): Promise<void> {
+  async write(value: string): Promise<void> {
+    this.readline.port.write(value)
+  }
+
+  async connect(): Promise<void> {
     let arduino: PortInfo | undefined
 
     do {
@@ -24,11 +30,11 @@ export class ArduinoSerialPortConnectionService {
       }
     } while (!arduino)
 
-    const readline: {port: SerialPort, readlineParser: ReadlineParser} = this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
+    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
       console.log(data)
     })
 
-    readline.readlineParser.on('data', (value) => console.log("Rade" + value))
+    this.readline.readlineParser.on('data', (value) => console.log("Rade" + value))
   }
 
   private sleep(ms: number): Promise<void> {
