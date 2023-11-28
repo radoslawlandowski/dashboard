@@ -11,6 +11,10 @@ export class SerialPortListenerService {
     return SerialPort.list()
   }
 
+  async findDevice(findBy: {vendorId: string, productId: string}): Promise<PortInfo> {
+    return (await this.listDevices()).find((device: PortInfo) => device.vendorId === findBy.vendorId && device.productId === findBy.productId)
+  }
+
   listenAndEmitOnNewline(
     devicePath: string,
     baudRate: number = 9600,
