@@ -13,3 +13,11 @@ Content-Type: application/json
 {
 
 }
+
+### Send WS Message
+POST http://localhost:3000/api/hardware-dashboard-bridge/send-ws-message
+Content-Type: application/json
+
+{
+
+}

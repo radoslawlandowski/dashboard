@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {
   HardwareDashboardModuleTypes
 } from "../../../hardware-dashboard-bridge/src/app/contract/hardware-dashboard-event";
+import {io} from "socket.io-client";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -22,34 +23,34 @@ export function App() {
   };
 
   const [isRed, setIsRed] = useState(true);
-  const [apiData, setApiData] = useState(null);
+  const [messages, setMessages] = useState<HardwareDashboardEvent<any>[]>([]);
 
   useEffect(() => {
-    fetchData();
+    const socket = io('http://localhost:3000'); // Replace with your server URL
+
+    socket.on('message', (data: HardwareDashboardEvent<any>) => {
+      setMessages( // Replace the state
+        [ // with a new array
+          ...messages, // that contains all the old items
+          data// and one new item at the end
+        ]
+      );
+      console.log(data)
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
-
-  const fetchData = () => {
-    // Fetch data from your API endpoint
-    fetch('http://localhost:3000/api/hardware-dashboard-bridge/data/last')
-      .then(response => response.json())
-      .then((data: HardwareDashboardEvent<any>) => {
-        // Assuming the API response has a property 'isRed' to determine color
-        console.log(data)
-
-        setIsRed(data.payload.value === 0)
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }
-
-  const getData = () => {
-    fetchData();
-  };
 
   return (
     <div>
-      <button onClick={getData}>Toggle Color</button>
-
       <ColorSwitcher isRed={isRed}/>
+      <div>
+        {messages.map((message: HardwareDashboardEvent<any>, index: number) => (
+          <p key={index}>{message.moduleIdentifier}</p>
+        ))}
+      </div>
     </div>
   );
 }

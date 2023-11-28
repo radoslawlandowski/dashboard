@@ -9,7 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nestjs/platform-socket.io": "^10.2.10",
+    "@nestjs/websockets": "^10.2.10",
     "serialport": "^12.0.0",
+    "socket.io-client": "^4.7.2",
     "typescript": "^5.3.2"
   }
 }

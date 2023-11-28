@@ -16,7 +16,8 @@ export class ArduinoSerialPortConnectionService {
 
   readline: {port: SerialPort, readlineParser: ReadlineParser}
 
-  constructor(readonly listener: SerialPortListenerService, private eventEmitter: EventEmitter2) {
+  constructor(readonly listener: SerialPortListenerService,
+              private eventEmitter: EventEmitter2) {
   }
 
   async write(value: string): Promise<void> {
