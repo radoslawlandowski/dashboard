@@ -12,6 +12,8 @@ import {plainToInstance} from "class-transformer";
 export class ArduinoSerialPortConnectionService {
   static ARDUINO_DEVICE_DATA = {vendorId: '2341', productId: '0043'};
 
+  readonly events: HardwareDashboardEvent<any>[] = []
+
   readline: {port: SerialPort, readlineParser: ReadlineParser}
 
   constructor(readonly listener: SerialPortListenerService, private eventEmitter: EventEmitter2) {
@@ -40,12 +42,13 @@ export class ArduinoSerialPortConnectionService {
 
     this.readline.readlineParser.on('data', (value: string) => {
       try {
-
         const parsedValue: object = JSON.parse(value)
 
         if(parsedValue['moduleType'] === 'DigitalPin') {
           const eventInstance: HardwareDashboardEvent<any> = plainToInstance(DigitalPinHardwareDashboardEvent, parsedValue)
-  
+
+          this.events.push(eventInstance)
+
           this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardEvent(
             eventInstance.moduleIdentifier, eventInstance.payload
           ))
