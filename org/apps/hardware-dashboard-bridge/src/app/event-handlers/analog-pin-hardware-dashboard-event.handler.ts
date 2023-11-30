@@ -1,18 +1,16 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable} from "@nestjs/common";
 import {WebsocketGateway} from "../websocket-gateway";
-import {
-  DigitalPinHardwareDashboardReceivedEvent
-} from "../contract/events/digital-pin-hardware-dashboard-received-event";
+import {AnalogPinHardwareDashboardReceivedEvent} from "../contract/events/analog-pin-hardware-dashboard-received-event";
 
 @Injectable()
-export class DigitalPinHardwareDashboardEventHandler {
+export class AnalogPinHardwareDashboardEventHandler {
 
   constructor(readonly websocketGateway: WebsocketGateway) {
   }
 
-  @OnEvent(DigitalPinHardwareDashboardReceivedEvent.Queue, { async: true })
-    async handle(event: DigitalPinHardwareDashboardReceivedEvent) {
+  @OnEvent(AnalogPinHardwareDashboardReceivedEvent.Queue, { async: true })
+    async handle(event: AnalogPinHardwareDashboardReceivedEvent) {
         console.log(`Received event: ${JSON.stringify(event)}`)
 
         this.websocketGateway.sendMessage(event)

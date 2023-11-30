@@ -44,7 +44,7 @@ void loop() {
   if (Serial.available() > 0) {
     StaticJsonDocument<200> doc;
     doc["timestamp"] = millis();
-    doc["moduleType"] = "DigitalPin";
+    doc["moduleType"] = "digital-pin";
     doc["moduleIdentifier"] = "2";
     JsonObject payload  = doc.createNestedObject("payload");
     payload["value"] = digitalRead(2);

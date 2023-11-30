@@ -21,3 +21,27 @@ Content-Type: application/json
 {
 
 }
+
+### Set Analog Pin
+POST http://localhost:3000/api/hardware-dashboard-bridge/command/set-analog-pin
+Content-Type: application/json
+
+{
+  "timestamp": 123456789,
+  "moduleIdentifier": "2",
+  "payload": {
+    "value": 1
+  }
+}
+
+### Set Digital Pin
+POST http://localhost:3000/api/hardware-dashboard-bridge/command/set-digital-pin
+Content-Type: application/json
+
+{
+  "timestamp": 123456789,
+  "moduleIdentifier": "2",
+  "payload": {
+    "value": 1
+  }
+}

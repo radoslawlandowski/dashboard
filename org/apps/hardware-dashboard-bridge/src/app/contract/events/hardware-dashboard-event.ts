@@ -1,13 +1,15 @@
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
+  queue: string
   moduleIdentifier: string
   payload: T
   timestamp: Date
 }
 
 export enum HardwareDashboardModuleTypes {
-  DigitalPin = "DigitalPin",
-  AnalogPin = "AnalogPin",
+  DigitalPin = "digital-pin",
+  AnalogPin = "analog-pin",
+  Unrecognized = "unrecognized"
 }
 
 export interface HardwareDashboardEventHandler {

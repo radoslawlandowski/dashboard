@@ -4,13 +4,29 @@ import {Injectable, Logger} from "@nestjs/common";
 import {ReadlineParser} from "@serialport/parser-readline";
 import {SerialPort} from "serialport";
 import {EventEmitter2} from "@nestjs/event-emitter";
-import {DigitalPinHardwareDashboardEvent} from "./contract/digital-pin-hardware-dashboard-event";
-import {HardwareDashboardEvent} from "./contract/hardware-dashboard-event";
 import {plainToInstance} from "class-transformer";
+import {HardwareDashboardEvent, HardwareDashboardModuleTypes} from "./contract/events/hardware-dashboard-event";
+import {
+  DigitalPinHardwareDashboardReceivedEvent
+} from "./contract/events/digital-pin-hardware-dashboard-received-event";
+import {AnalogPinHardwareDashboardReceivedEvent} from "./contract/events/analog-pin-hardware-dashboard-received-event";
+import {
+  UnrecognizedHardwareDashboardEventPayload,
+  UnrecognizedHardwareDashboardReceivedEvent
+} from "./contract/events/unrecognized-hardware-dashboard-received-event";
+import {SerialPortConnectionService} from "./serial-port-connection-service";
+
+type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
 @Injectable()
-export class ArduinoSerialPortConnectionService {
+export class ArduinoSerialPortConnectionService implements SerialPortConnectionService {
   static ARDUINO_DEVICE_DATA = {vendorId: '2341', productId: '0043'};
+
+  readonly eventMap: Map<HardwareDashboardModuleTypes, AConstructorTypeOf<HardwareDashboardEvent<any>>> = new Map([
+      [HardwareDashboardModuleTypes.DigitalPin, DigitalPinHardwareDashboardReceivedEvent],
+      [HardwareDashboardModuleTypes.AnalogPin, AnalogPinHardwareDashboardReceivedEvent]
+    ]
+  )
 
   readonly events: HardwareDashboardEvent<any>[] = []
 
@@ -20,8 +36,9 @@ export class ArduinoSerialPortConnectionService {
               private eventEmitter: EventEmitter2) {
   }
 
-  async write(value: string): Promise<void> {
-    this.readline.port.write(value)
+  async write(value: object): Promise<void> {
+    this.readline.port.write(JSON.stringify(value))
+    this.readline.port.write('\n')
   }
 
   async connect(): Promise<void> {
@@ -41,24 +58,30 @@ export class ArduinoSerialPortConnectionService {
       console.log(data)
     })
 
+    this.readline.port.on('error', (err: Error) => {
+      console.error(err)
+      console.error(`Reconnecting...`)
+
+      this.connect()
+    })
+
     this.readline.readlineParser.on('data', (value: string) => {
       try {
         const parsedValue: object = JSON.parse(value)
 
-        if(parsedValue['moduleType'] === 'DigitalPin') {
-          const eventInstance: HardwareDashboardEvent<any> = plainToInstance(DigitalPinHardwareDashboardEvent, parsedValue)
+        const eventType: AConstructorTypeOf<HardwareDashboardEvent<any>> | undefined = this.eventMap.get(parsedValue['moduleType'])
 
-          this.events.push(eventInstance)
+        const eventInstance: HardwareDashboardEvent<any> = plainToInstance(eventType, parsedValue)
 
-          this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardEvent(
-            eventInstance.moduleIdentifier, eventInstance.payload
-          ))
-        } else {
-          console.log(value)
-          console.log(parsedValue)
-        }
+        this.events.push(eventInstance)
+
+        this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
       } catch(e) {
         console.log(e)
+
+        this.eventEmitter.emit(`hardware-dashboard.received.${HardwareDashboardModuleTypes.Unrecognized}`,
+          new UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))
+        )
       }
     })
   }

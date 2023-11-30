@@ -1,9 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {useEffect, useState} from "react";
+import {io} from "socket.io-client";
 import {
   HardwareDashboardModuleTypes
-} from "../../../hardware-dashboard-bridge/src/app/contract/hardware-dashboard-event";
-import {io} from "socket.io-client";
+} from "../../../hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
+import CommandInputComponent from "./command-input.component";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -23,7 +24,7 @@ export function App() {
 
     return (
       <div style={style}>
-        
+
       </div>
     );
   };
@@ -53,6 +54,10 @@ export function App() {
 
   return (
     <div>
+      <div>
+        <CommandInputComponent/>
+      </div>
+
       <ColorSwitcher isRed={isRed}/>
       <div>
         {messages.map((message: HardwareDashboardEvent<any>, index: number) => (
