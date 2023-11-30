@@ -5,6 +5,7 @@ import {
   HardwareDashboardModuleTypes
 } from "../../../hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
 import CommandInputComponent from "./command-input.component";
+import StyledGauge from "./styled-gauge";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -55,6 +56,8 @@ export function App() {
       <div>
         <CommandInputComponent/>
       </div>
+
+      <StyledGauge id="dockerMem"/>
 
       <ColorSwitcher isRed={isRed}/>
       <div>

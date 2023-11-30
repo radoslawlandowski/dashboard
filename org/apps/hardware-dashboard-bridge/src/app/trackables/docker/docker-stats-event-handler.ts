@@ -13,7 +13,11 @@ export class DockerStatsEventHandler {
   async handle(event: DockerStatsEntry) {
     this.websocketGateway.sendMessage({
       payload: {
-        value: event
+        value: {
+          name: event.Name,
+          memPerc: event.MemPerc,
+          cpuPerc: event.CPUPerc
+        }
       }
     })
   }
