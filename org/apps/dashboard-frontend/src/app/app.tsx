@@ -43,8 +43,6 @@ export function App() {
       setIsRed(data.payload.value === 0)
 
       setMessages((prevState: HardwareDashboardEvent<any>[]) => [data, ...prevState].slice(0, 10));
-
-      console.log(messages)
     });
 
     return () => {

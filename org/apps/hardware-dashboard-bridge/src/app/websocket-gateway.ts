@@ -15,6 +15,8 @@ export class WebsocketGateway {
   }
 
   sendMessage(message: any) {
-    this.server.emit('message', message);
+    if(this.server) {
+      this.server.emit('message', message);
+    }
   }
 }
