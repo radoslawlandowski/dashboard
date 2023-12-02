@@ -88,7 +88,6 @@ void loop() {
 
     delay(100);
 
-    StaticJsonDocument<300> doc;
 
     // Read the JSON document from the "link" serial port
 
@@ -111,32 +110,33 @@ void loop() {
       // Example: You can parse the received string or take specific actions based on its content
     }
 
-    
-//    DeserializationError err = deserializeJson(doc, value);
+    StaticJsonDocument<300> doc;
 
-//    if (err == DeserializationError::Ok)
-//    {
-//
-//      if(doc["moduleType"] == "digital-pin") {
-//        digitalWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
-//      }
-//      else if(doc["moduleType"] == "analog-pin") {
-//        analogWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
-//      }
-//      else {
-//        Serial.println("Unknown module type");
-//      }
-//    }
-//    else
-//    {
-//      // Print error to the "debug" serial port
-//      Serial.print("deserializeJson() returned ");
-//      Serial.println(err.c_str());
-//
-//      // Flush all bytes in the "link" serial port buffer
-//      while (Serial.available() > 0)
-//        Serial.read();
-//    }
+    DeserializationError err = deserializeJson(doc, receivedString);
+
+    if (err == DeserializationError::Ok)
+    {
+
+      if(doc["mt"] == "dp") {
+        digitalWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+      }
+      else if(doc["mt"] == "ap") {
+        analogWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+      }
+      else {
+        Serial.println("Unknown module type");
+      }
+    }
+    else
+    {
+      // Print error to the "debug" serial port
+      Serial.print("deserializeJson() returned ");
+      Serial.println(err.c_str());
+
+      // Flush all bytes in the "link" serial port buffer
+      while (Serial.available() > 0)
+        Serial.read();
+    }
 
     delay(100);
 
@@ -148,6 +148,8 @@ void establishContact() {
     Serial.println("Awaiting byte from listener...");   // send a capital A
     delay(300);
   }
+
+  Serial.read();
 
 }
 

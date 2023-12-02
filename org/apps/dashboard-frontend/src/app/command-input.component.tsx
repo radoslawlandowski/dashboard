@@ -25,7 +25,7 @@ const CommandInputComponent = () => {
         "timestamp": new Date(),
         "moduleIdentifier": moduleIdentifier,
         "payload": {
-          "value": inputValue
+          "value": Number(inputValue)
         }
       }),
     })

@@ -69,7 +69,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       this.connect()
     })
 
-    await this.sleep(5000)
+    await this.sleep(1000)
 
     this.readline.port.write('A')
 
