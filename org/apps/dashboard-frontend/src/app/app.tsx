@@ -15,8 +15,13 @@ export interface HardwareDashboardEvent<T> {
   timestamp: string
 }
 
+export interface DigitalPinData {
+  pin: number
+  value: number
+}
+
 export function App() {
-  const ColorSwitcher = ({isRed}: any) => {
+  const DigitalRead = ({isRed, pin}: any) => {
     const style = {
       backgroundColor: isRed ? "red" : "green",
       width: '100px',
@@ -25,14 +30,18 @@ export function App() {
     }
 
     return (
-      <div style={style}>
-
+      <div>
+        <div>
+          <p>Pin: {pin}</p>
+        </div>
+        <div style={style}></div>
       </div>
     );
   };
 
   const [isRed, setIsRed] = useState(true);
   const [messages, setMessages] = useState<HardwareDashboardEvent<any>[]>([]);
+  const [digitalPinData, setDigitalPinData] = useState< {[p:number]: DigitalPinData}>({2: {pin: 2, value: 0}});
 
   useEffect(() => {
     const socket = io('http://localhost:3000'); // Replace with your server URL
@@ -45,6 +54,25 @@ export function App() {
       setIsRed(data.payload.value === 0)
 
       setMessages((prevState: HardwareDashboardEvent<any>[]) => [data, ...prevState].slice(0, 10));
+
+      switch(data.moduleType) {
+        case HardwareDashboardModuleTypes.DigitalPin: {
+          const digitalPinModuleData =  {
+              pin: Number(data.moduleIdentifier),
+              value: Number(data.payload.value),
+          };
+
+          setDigitalPinData((prevState: { [p:number]: DigitalPinData }) => {
+            const newState = {...prevState}
+
+            newState[Number(data.moduleIdentifier)] = digitalPinModuleData
+            console.log(newState)
+
+            return newState
+          })
+        }
+      }
+
     });
 
     return () => {
@@ -52,18 +80,29 @@ export function App() {
     };
   }, []);
 
+  const divStyle = {
+    border: '2px solid #4CAF50', // You can adjust the border style as needed
+    padding: '10px',
+  };
+
   return (
     <div>
-      <div>
+      <div style={divStyle}>
         <DockerRestartContainerComponent/>
       </div>
-      <div>
+      <div style={divStyle}>
         <CommandInputComponent/>
+      </div>
+      <div style={divStyle}>
+        <div>
+          {Object.values(digitalPinData).map((data: DigitalPinData, index: number) => (
+            <DigitalRead isRed={data.value === 0} pin={data.pin} />
+          ))}
+        </div>
       </div>
 
       <StyledGauge id="dockerMem"/>
 
-      <ColorSwitcher isRed={isRed}/>
       <div>
         {messages.map((message: HardwareDashboardEvent<any>, index: number) => (
           <p key={index}>Date: '{message.timestamp}': Module Type: '{message.moduleType}' - Module Identifier: '{message.moduleIdentifier}' - Payload: {JSON.stringify(message.payload)} </p>

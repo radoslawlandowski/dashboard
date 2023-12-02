@@ -39,17 +39,17 @@ const hardwareCommandHandlers = [
       wildcard: true,
     }),
     CqrsModule,
-    DockerInterfaceModule.register({
-      containers: [
-        {
-          imageName: 'localstack/localstack',
-          name: "localstack-radek",
-        }, {
-          imageName: 'postgres',
-          name: 'postgres-dashboard-radek'
-        }
-      ]
-    })
+    // DockerInterfaceModule.register({
+    //   containers: [
+    //     {
+    //       imageName: 'localstack/localstack',
+    //       name: "localstack-radek",
+    //     }, {
+    //       imageName: 'postgres',
+    //       name: 'postgres-dashboard-radek'
+    //     }
+    //   ]
+    // })
   ],
   controllers: [AppController],
   providers: [

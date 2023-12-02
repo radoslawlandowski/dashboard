@@ -1,12 +1,10 @@
-import {Body, Controller, Post} from '@nestjs/common';
+import {Body, Controller, Post, Query} from '@nestjs/common';
 import {ArduinoSerialPortConnectionService} from "./arduino.serial.port.connection.service";
 import {EventEmitter2} from "@nestjs/event-emitter";
-import {HardwareDashboardCommand} from "./contract/commands/hardware-dashboard-comand";
 import {
   DigitalPinHardwareDashboardReceivedEvent
 } from "./contract/events/digital-pin-hardware-dashboard-received-event";
 import {CommandBus} from "@nestjs/cqrs";
-import {SetDigitalPinHardwareDashboardHandler} from "./command-handlers/set-digital-pin-hardware-dashboard.handler";
 import {SetDigitalPinHardwareDashboardCommand} from "./contract/commands/set-digital-pin-hardware-dashboard-command";
 import {SetAnalogPinHardwareDashboardCommand} from "./contract/commands/set-analog-pin-hardware-dashboard-command";
 
@@ -18,9 +16,9 @@ export class AppController {
   }
 
   @Post('send-ws-message')
-  async data(): Promise<boolean> {
-    return this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardReceivedEvent("1", {
-      value: 0
+  async data(@Query('pin') pin: number, @Query('value') value: 0 | 1): Promise<boolean> {
+    return this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardReceivedEvent(pin.toString(), {
+      value: value
     }))
   }
 

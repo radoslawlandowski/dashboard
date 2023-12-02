@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### Send WS Message
-POST http://localhost:3000/api/hardware-dashboard-bridge/send-ws-message
+POST http://localhost:3000/api/hardware-dashboard-bridge/send-ws-message?pin=3&value=1
 Content-Type: application/json
 
 {
