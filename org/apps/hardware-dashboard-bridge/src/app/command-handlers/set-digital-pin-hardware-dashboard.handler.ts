@@ -17,6 +17,6 @@ export class SetDigitalPinHardwareDashboardHandler implements ICommandHandler<Se
       command.payload
     )
 
-    return this.arduinoService.write(object)
+    return this.arduinoService.write(object.toArduino())
   }
 }

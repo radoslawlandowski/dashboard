@@ -37,8 +37,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
   }
 
   async write(value: object): Promise<void> {
-    this.readline.port.write(JSON.stringify(value))
-    this.readline.port.write('\n')
+    this.readline.port.write(JSON.stringify(value), function(err) {
+      if (err) {
+        return console.log('Error on write: ', err.message)
+      }
+      console.log('message written')
+    })
   }
 
   async connect(): Promise<void> {
@@ -54,7 +58,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       }
     } while (!arduino)
 
-    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 115200, (data: string) => {
+    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
       console.log(data)
     })
 
@@ -64,6 +68,10 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
       this.connect()
     })
+
+    await this.sleep(5000)
+
+    this.readline.port.write('A')
 
     this.readline.readlineParser.on('data', (value: string) => {
       try {
@@ -77,7 +85,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
         this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
       } catch(e) {
-        console.log(e)
+        console.error(e)
 
         this.eventEmitter.emit(`hardware-dashboard.received.${HardwareDashboardModuleTypes.Unrecognized}`,
           new UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))

@@ -23,4 +23,12 @@ export class DigitalPinHardwareDashboardReceivedEvent implements HardwareDashboa
     this.moduleIdentifier = moduleIdentifier
     this.payload = payload
   }
+
+  toArduino(): object {
+    return {
+      mt: 'dp',
+      mi: this.moduleIdentifier,
+      v: this.payload.value
+    }
+  }
 }

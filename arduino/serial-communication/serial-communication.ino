@@ -36,7 +36,7 @@ int analogInputs [3] = {A0, A1, A2};
 
 void setup() {
   // start serial port at 9600 bps:
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -55,6 +55,8 @@ void setup() {
 
 void loop() {
   // if we get a valid byte, read analog ins:
+  delay(3000);
+  
   if (Serial.available() > 0) {
     for(int i = 0 ; i < 5 ; i++) {
       StaticJsonDocument<200> doc;
@@ -84,34 +86,60 @@ void loop() {
       Serial.println();
     }
 
+    delay(100);
+
     StaticJsonDocument<300> doc;
 
     // Read the JSON document from the "link" serial port
-    DeserializationError err = deserializeJson(doc, Serial);
 
-    if (err == DeserializationError::Ok)
-    {
+    String receivedString = ""; // Initialize an empty string to store incoming data
 
-      if(doc["moduleType"] == "digital-pin") {
-        digitalWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
+    // Read the incoming data until a newline character '\n' is encountered
+    while (Serial.available() > 0) {
+      char incomingChar = Serial.read(); // Read the incoming byte
+      if (incomingChar == '\n') {
+        break; // Break the loop when newline character is received
       }
-      else if(doc["moduleType"] == "analog-pin") {
-        analogWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
-      }
-      else {
-        Serial.println("Unknown module type");
-      }
+      receivedString += incomingChar; // Append the character to the received string
+      delay(2); // Small delay for stability
     }
-    else
-    {
-      // Print error to the "debug" serial port
-      Serial.print("deserializeJson() returned ");
-      Serial.println(err.c_str());
 
-      // Flush all bytes in the "link" serial port buffer
-      while (Serial1.available() > 0)
-        Serial1.read();
+    // Do something with the received string
+    if (receivedString.length() > 0) {
+      Serial.println(receivedString);
+      // Perform actions based on the received string
+      // Example: You can parse the received string or take specific actions based on its content
     }
+
+    
+//    DeserializationError err = deserializeJson(doc, value);
+
+//    if (err == DeserializationError::Ok)
+//    {
+//
+//      if(doc["moduleType"] == "digital-pin") {
+//        digitalWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
+//      }
+//      else if(doc["moduleType"] == "analog-pin") {
+//        analogWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
+//      }
+//      else {
+//        Serial.println("Unknown module type");
+//      }
+//    }
+//    else
+//    {
+//      // Print error to the "debug" serial port
+//      Serial.print("deserializeJson() returned ");
+//      Serial.println(err.c_str());
+//
+//      // Flush all bytes in the "link" serial port buffer
+//      while (Serial.available() > 0)
+//        Serial.read();
+//    }
+
+    delay(100);
+
   }
 }
 
@@ -120,6 +148,7 @@ void establishContact() {
     Serial.println("Awaiting byte from listener...");   // send a capital A
     delay(300);
   }
+
 }
 
 /* Processing sketch to run with this example:

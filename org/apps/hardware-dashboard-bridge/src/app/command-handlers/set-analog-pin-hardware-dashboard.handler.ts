@@ -14,6 +14,6 @@ export class SetAnalogPinHardwareDashboardHandler implements ICommandHandler<Set
       command.moduleIdentifier,
       command.payload
     )
-    return this.arduinoService.write(object)
+    return this.arduinoService.write(object.toArduino())
   }
 }
