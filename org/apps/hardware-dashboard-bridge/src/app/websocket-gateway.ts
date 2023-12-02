@@ -1,10 +1,14 @@
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import {WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
+import {Server} from 'socket.io';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({cors: true})
 export class WebsocketGateway {
+
   @WebSocketServer()
   server: Server;
+
+  constructor() {
+  }
 
   handleConnection(client: any) {
     console.log(`Client connected: ${client.id}`);
@@ -15,8 +19,7 @@ export class WebsocketGateway {
   }
 
   sendMessage(message: any) {
-    if(this.server) {
-      this.server.emit('message', message);
-    }
+    this.server.emit('message', message);
   }
 }
+

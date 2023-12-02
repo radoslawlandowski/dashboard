@@ -9,15 +9,11 @@ export class DockerStatsEventHandler {
   constructor(readonly websocketGateway: WebsocketGateway) {
   }
 
-  @OnEvent('trackables.docker.stats.*', { async: true })
+  @OnEvent('trackables.docker.stats.*', {async: true})
   async handle(event: DockerStatsEvent) {
     this.websocketGateway.sendMessage({
       payload: {
-        value: {
-          name: event.payload.Name,
-          memPerc: event.payload.MemPerc,
-          cpuPerc: event.payload.CPUPerc
-        }
+        value: event.payload
       }
     })
   }

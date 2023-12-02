@@ -3,7 +3,7 @@ import {Writable} from "stream";
 import {Inject, Injectable, OnApplicationBootstrap} from "@nestjs/common";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {DockerContainerConfig, DockerModuleConfig} from "./docker-module.config";
-import {plainToInstance} from "class-transformer";
+import {Comparable} from "../../comparable";
 
 export interface DockerReadInterface {
   stats<T extends NodeJS.WritableStream>(statsWritableStream: T) : Promise<void>
@@ -21,8 +21,27 @@ export interface DockerTrackableEvent {
   containerName: string
 }
 
-export interface DockerStatsEvent extends DockerTrackableEvent {
+export interface DockerStatsEvent extends DockerTrackableEvent, Comparable {
   payload: DockerStatsEntry
+}
+
+export class DockerStatsEventImpl implements DockerStatsEvent {
+  containerName: string;
+  payload: DockerStatsEntry;
+
+
+  constructor(containerName: string, payload: DockerStatsEntry) {
+    this.containerName = containerName;
+    this.payload = payload;
+  }
+
+  isSame(other: DockerStatsEvent): boolean {
+    return this.payload.Name === other.payload.Name
+    && this.payload.ID === other.payload.ID
+    && this.payload.MemPerc === other.payload.MemPerc
+    && this.payload.CPUPerc === other.payload.CPUPerc
+    && this.payload.NetIO === other.payload.CPUPerc
+  }
 }
 
 export interface DockerStatsEntry {
@@ -45,7 +64,7 @@ export class DockerCommandLineInterfaceImpl implements DockerInterface {
 
   constructor(@Inject("DOCKER_CONFIG") readonly dockerConfig: DockerModuleConfig) {
     this.containersToTrack = this.dockerConfig.containers.map((value: DockerContainerConfig) => value.name)
-    this.containersToTrackJoinedBySpace = this.containersToTrack.join(' ')
+    this.containersToTrackJoinedBySpace = this.containersToTrack.join(' ').trim()
   }
 
   async stats<T extends NodeJS.WritableStream>(statsWritableStream: T): Promise<void> {
@@ -103,10 +122,10 @@ export class DockerDataEventEmitter implements OnApplicationBootstrap {
 
         if(entries.length > 0) {
           entries.map((entry: DockerStatsEntry) => {
-            const dockerStatsEvent: DockerStatsEvent = {
-              containerName: entry.Name,
-              payload: entry
-            }
+            const dockerStatsEvent: DockerStatsEvent = new DockerStatsEventImpl(
+              entry.Name, entry
+            )
+
             self.eventEmitter.emit(`trackables.docker.stats.${entry.Name}`, dockerStatsEvent)
           })
         }

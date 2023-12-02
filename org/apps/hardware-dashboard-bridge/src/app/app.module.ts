@@ -16,6 +16,7 @@ import {CqrsModule} from "@nestjs/cqrs";
 import {ConsoleLogSerialPortConnectionService} from "./serial-port-connection-service";
 import {DockerStatsEventHandler} from "./trackables/docker/docker-stats-event-handler";
 import {DockerInterfaceModule} from "./trackables/docker/docker-interface.module";
+import {DistinctUntilChangedInterceptor} from "./distinct-until-changed-interceptor.service";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -49,6 +50,7 @@ const hardwareCommandHandlers = [
   controllers: [AppController],
   providers: [
     WebsocketGateway,
+    DistinctUntilChangedInterceptor,
     SerialPortListenerService,
     // {provide: ArduinoSerialPortConnectionService, useClass: ArduinoSerialPortConnectionService},
     {provide: ArduinoSerialPortConnectionService, useClass: ConsoleLogSerialPortConnectionService},
