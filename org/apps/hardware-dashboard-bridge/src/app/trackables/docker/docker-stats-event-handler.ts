@@ -1,7 +1,7 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable} from "@nestjs/common";
 import {WebsocketGateway} from "../../websocket-gateway";
-import {DockerStatsEntry} from "./docker-interface";
+import {DockerStatsEvent} from "./docker-interface";
 
 @Injectable()
 export class DockerStatsEventHandler {
@@ -9,14 +9,14 @@ export class DockerStatsEventHandler {
   constructor(readonly websocketGateway: WebsocketGateway) {
   }
 
-  @OnEvent('trackables.docker.stats', { async: true })
-  async handle(event: DockerStatsEntry) {
+  @OnEvent('trackables.docker.stats.*', { async: true })
+  async handle(event: DockerStatsEvent) {
     this.websocketGateway.sendMessage({
       payload: {
         value: {
-          name: event.Name,
-          memPerc: event.MemPerc,
-          cpuPerc: event.CPUPerc
+          name: event.payload.Name,
+          memPerc: event.payload.MemPerc,
+          cpuPerc: event.payload.CPUPerc
         }
       }
     })

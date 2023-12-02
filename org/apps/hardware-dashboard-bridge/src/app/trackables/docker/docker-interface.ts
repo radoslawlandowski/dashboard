@@ -1,17 +1,28 @@
 import {spawn} from "child_process";
 import {Writable} from "stream";
-import {Injectable, OnApplicationBootstrap} from "@nestjs/common";
+import {Inject, Injectable, OnApplicationBootstrap} from "@nestjs/common";
 import {EventEmitter2} from "@nestjs/event-emitter";
+import {DockerContainerConfig, DockerModuleConfig} from "./docker-module.config";
+import {plainToInstance} from "class-transformer";
 
 export interface DockerReadInterface {
   stats<T extends NodeJS.WritableStream>(statsWritableStream: T) : Promise<void>
 }
 
 export interface DockerWriteInterface {
-
+  restartContainer(containerName: string): Promise<void>
 }
 
 export interface DockerInterface extends DockerReadInterface, DockerWriteInterface {
+
+}
+
+export interface DockerTrackableEvent {
+  containerName: string
+}
+
+export interface DockerStatsEvent extends DockerTrackableEvent {
+  payload: DockerStatsEntry
 }
 
 export interface DockerStatsEntry {
@@ -28,9 +39,18 @@ export interface DockerStatsEntry {
 
 @Injectable()
 export class DockerCommandLineInterfaceImpl implements DockerInterface {
+
+  private containersToTrack: string[]
+  private containersToTrackJoinedBySpace: string
+
+  constructor(@Inject("DOCKER_CONFIG") readonly dockerConfig: DockerModuleConfig) {
+    this.containersToTrack = this.dockerConfig.containers.map((value: DockerContainerConfig) => value.name)
+    this.containersToTrackJoinedBySpace = this.containersToTrack.join(' ')
+  }
+
   async stats<T extends NodeJS.WritableStream>(statsWritableStream: T): Promise<void> {
     const command = 'docker';
-    const args = ['stats', '--format', '"{{ json . }}"'];
+    const args = ['stats', '--format', '"{{ json . }}"', this.containersToTrackJoinedBySpace];
 
     const childProcess = spawn(command, args);
 
@@ -42,21 +62,26 @@ export class DockerCommandLineInterfaceImpl implements DockerInterface {
 
     childProcess.on('exit', (code, signal) => {
       if (code !== null) {
-        console.log(`Process exit code: ${code}`);
+        throw new Error(`Process exit code: ${code}`);
       } else if (signal !== null) {
         console.log(`Process killed by signal: ${signal}`);
       }
     });
+  }
+
+  restartContainer(containerName: string): Promise<void> {
+    return Promise.resolve(undefined);
   }
 }
 
 @Injectable()
 export class DockerDataEventEmitter implements OnApplicationBootstrap {
 
-  constructor(readonly eventEmitter: EventEmitter2, readonly dockerInterface: DockerCommandLineInterfaceImpl) {
+  constructor(readonly eventEmitter: EventEmitter2,
+              readonly dockerInterface: DockerCommandLineInterfaceImpl) {
   }
 
-  async emit(): Promise<void> {
+  async emitStats(): Promise<void> {
     const self = this
 
     return await this.dockerInterface.stats(new Writable({
@@ -77,7 +102,13 @@ export class DockerDataEventEmitter implements OnApplicationBootstrap {
           .filter((value) => value !== null)
 
         if(entries.length > 0) {
-          self.eventEmitter.emit('trackables.docker.stats', ...entries)
+          entries.map((entry: DockerStatsEntry) => {
+            const dockerStatsEvent: DockerStatsEvent = {
+              containerName: entry.Name,
+              payload: entry
+            }
+            self.eventEmitter.emit(`trackables.docker.stats.${entry.Name}`, dockerStatsEvent)
+          })
         }
 
         callback();
@@ -86,6 +117,6 @@ export class DockerDataEventEmitter implements OnApplicationBootstrap {
   }
 
   onApplicationBootstrap(): any {
-    this.emit()
+    this.emitStats()
   }
 }

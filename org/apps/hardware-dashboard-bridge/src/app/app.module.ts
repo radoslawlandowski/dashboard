@@ -33,7 +33,19 @@ const hardwareCommandHandlers = [
 ]
 
 @Module({
-  imports: [EventEmitterModule.forRoot(), CqrsModule, DockerInterfaceModule],
+  imports: [
+    EventEmitterModule.forRoot({
+      wildcard: true,
+    }),
+    CqrsModule,
+    DockerInterfaceModule.register({
+      containers: [
+        {
+          name: "local-localstack-1",
+        }
+      ]
+    })
+  ],
   controllers: [AppController],
   providers: [
     WebsocketGateway,
