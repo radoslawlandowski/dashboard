@@ -42,7 +42,11 @@ const hardwareCommandHandlers = [
     DockerInterfaceModule.register({
       containers: [
         {
-          name: "local-localstack-1",
+          imageName: 'localstack/localstack',
+          name: "localstack-radek",
+        }, {
+          imageName: 'postgres',
+          name: 'postgres-dashboard-radek'
         }
       ]
     })

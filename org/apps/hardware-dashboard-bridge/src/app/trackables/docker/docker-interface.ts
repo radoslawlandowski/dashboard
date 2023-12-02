@@ -1,4 +1,4 @@
-import {spawn} from "child_process";
+import {exec, execSync, spawn} from "child_process";
 import {Writable} from "stream";
 import {Inject, Injectable, OnApplicationBootstrap} from "@nestjs/common";
 import {EventEmitter2} from "@nestjs/event-emitter";
@@ -69,7 +69,9 @@ export class DockerCommandLineInterfaceImpl implements DockerInterface {
 
   async stats<T extends NodeJS.WritableStream>(statsWritableStream: T): Promise<void> {
     const command = 'docker';
-    const args = ['stats', '--format', '"{{ json . }}"', this.containersToTrackJoinedBySpace];
+    const args = ['stats', '--format', '"{{ json . }}"'];
+
+    console.log(`Running command: ${command} ${args.join(' ')}`)
 
     const childProcess = spawn(command, args);
 
@@ -89,7 +91,20 @@ export class DockerCommandLineInterfaceImpl implements DockerInterface {
   }
 
   restartContainer(containerName: string): Promise<void> {
-    return Promise.resolve(undefined);
+    const image = this.dockerConfig.containers.find((value: DockerContainerConfig) => value.name === containerName)?.imageName
+
+    this.runCommand('docker', ['stop', containerName]);
+    this.runCommand('docker', ['start', containerName]);
+
+    return Promise.resolve()
+  }
+
+  private runCommand(command: string, args: string[]) {
+    console.log(`Running command: ${command} ${args.join(' ')}`);
+
+    const childProcess = execSync(`${command} ${args.join(' ')}`);
+
+    console.log(childProcess.toString());
   }
 }
 
@@ -97,7 +112,8 @@ export class DockerCommandLineInterfaceImpl implements DockerInterface {
 export class DockerDataEventEmitter implements OnApplicationBootstrap {
 
   constructor(readonly eventEmitter: EventEmitter2,
-              readonly dockerInterface: DockerCommandLineInterfaceImpl) {
+              readonly dockerInterface: DockerCommandLineInterfaceImpl,
+              @Inject("DOCKER_CONFIG") readonly dockerConfig: DockerModuleConfig) {
   }
 
   async emitStats(): Promise<void> {
@@ -126,7 +142,9 @@ export class DockerDataEventEmitter implements OnApplicationBootstrap {
               entry.Name, entry
             )
 
-            self.eventEmitter.emit(`trackables.docker.stats.${entry.Name}`, dockerStatsEvent)
+            if(self.dockerConfig.containers.map((value: DockerContainerConfig) => value.name).includes(entry.Name)) {
+              self.eventEmitter.emit(`trackables.docker.stats.${entry.Name}`, dockerStatsEvent)
+            }
           })
         }
 

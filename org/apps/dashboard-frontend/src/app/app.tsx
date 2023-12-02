@@ -6,6 +6,7 @@ import {
 } from "../../../hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
 import CommandInputComponent from "./command-input.component";
 import StyledGauge from "./styled-gauge";
+import DockerRestartContainerComponent from "./docker-restart-container.component";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -53,6 +54,9 @@ export function App() {
 
   return (
     <div>
+      <div>
+        <DockerRestartContainerComponent/>
+      </div>
       <div>
         <CommandInputComponent/>
       </div>

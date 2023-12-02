@@ -1,7 +1,8 @@
 import {DynamicModule, Module} from '@nestjs/common';
 import {EventEmitterModule} from "@nestjs/event-emitter";
-import {DockerCommandLineInterfaceImpl, DockerDataEventEmitter, DockerInterface} from "./docker-interface";
+import {DockerCommandLineInterfaceImpl, DockerDataEventEmitter} from "./docker-interface";
 import {DockerModuleConfig} from "./docker-module.config";
+import { DockerController } from './docker.controller';
 
 @Module({
   imports: [
@@ -10,7 +11,8 @@ import {DockerModuleConfig} from "./docker-module.config";
   providers: [
     DockerCommandLineInterfaceImpl,
     DockerDataEventEmitter,
-  ]
+  ],
+  controllers: [DockerController]
 })
 export class DockerInterfaceModule {
   static register(config: DockerModuleConfig): DynamicModule {
