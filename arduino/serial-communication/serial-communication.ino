@@ -29,6 +29,8 @@ int inByte = 0;         // incoming serial byte
 
 int digitalInputs [5] = {2, 3, 4, 5, 6};
 
+int digitalOutputs [5] = {7, 8, 9, 10, 11};
+
 int analogInputs [3] = {A0, A1, A2};
 
 
@@ -39,13 +41,20 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  pinMode(2, INPUT);   // digital sensor is on digital pin 0
+  pinMode(2, INPUT);
+
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+
+    // digital sensor is on digital pin 0
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
   // if we get a valid byte, read analog ins:
-
   if (Serial.available() > 0) {
     for(int i = 0 ; i < 5 ; i++) {
       StaticJsonDocument<200> doc;
@@ -75,6 +84,34 @@ void loop() {
       Serial.println();
     }
 
+    StaticJsonDocument<300> doc;
+
+    // Read the JSON document from the "link" serial port
+    DeserializationError err = deserializeJson(doc, Serial);
+
+    if (err == DeserializationError::Ok)
+    {
+
+      if(doc["moduleType"] == "digital-pin") {
+        digitalWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
+      }
+      else if(doc["moduleType"] == "analog-pin") {
+        analogWrite(doc["moduleIdentifier"].as<int>(), doc["payload"]["value"].as<int>());
+      }
+      else {
+        Serial.println("Unknown module type");
+      }
+    }
+    else
+    {
+      // Print error to the "debug" serial port
+      Serial.print("deserializeJson() returned ");
+      Serial.println(err.c_str());
+
+      // Flush all bytes in the "link" serial port buffer
+      while (Serial1.available() > 0)
+        Serial1.read();
+    }
   }
 }
 

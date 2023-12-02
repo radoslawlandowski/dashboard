@@ -1,6 +1,9 @@
 import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
 import {SetDigitalPinHardwareDashboardCommand} from "../contract/commands/set-digital-pin-hardware-dashboard-command";
 import {ArduinoSerialPortConnectionService} from "../arduino.serial.port.connection.service";
+import {
+  DigitalPinHardwareDashboardReceivedEvent
+} from "../contract/events/digital-pin-hardware-dashboard-received-event";
 
 @CommandHandler(SetDigitalPinHardwareDashboardCommand)
 export class SetDigitalPinHardwareDashboardHandler implements ICommandHandler<SetDigitalPinHardwareDashboardCommand> {
@@ -9,6 +12,11 @@ export class SetDigitalPinHardwareDashboardHandler implements ICommandHandler<Se
   }
 
   async execute(command: SetDigitalPinHardwareDashboardCommand): Promise<any> {
-    return this.arduinoService.write(command)
+    const object = new DigitalPinHardwareDashboardReceivedEvent(
+      command.moduleIdentifier,
+      command.payload
+    )
+
+    return this.arduinoService.write(object)
   }
 }
