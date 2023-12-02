@@ -36,7 +36,7 @@ int analogInputs [3] = {A0, A1, A2};
 
 void setup() {
   // start serial port at 9600 bps:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -54,10 +54,8 @@ void setup() {
 }
 
 void loop() {
-  // if we get a valid byte, read analog ins:
-  delay(3000);
+
   
-  if (Serial.available() > 0) {
     for(int i = 0 ; i < 5 ; i++) {
       StaticJsonDocument<200> doc;
       doc["timestamp"] = millis();
@@ -104,43 +102,38 @@ void loop() {
     }
 
     // Do something with the received string
-    if (receivedString.length() > 0) {
-      Serial.println(receivedString);
-      // Perform actions based on the received string
-      // Example: You can parse the received string or take specific actions based on its content
-    }
-
-    StaticJsonDocument<300> doc;
-
-    DeserializationError err = deserializeJson(doc, receivedString);
-
-    if (err == DeserializationError::Ok)
-    {
-
-      if(doc["mt"] == "dp") {
-        digitalWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+    if (receivedString.length() > 0) {      
+      StaticJsonDocument<300> doc;
+  
+      DeserializationError err = deserializeJson(doc, receivedString);
+  
+      if (err == DeserializationError::Ok)
+      {
+  
+        if(doc["mt"] == "dp") {
+          digitalWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+        }
+        else if(doc["mt"] == "ap") {
+          analogWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+        }
+        else {
+          Serial.println("Unknown module type");
+        }
       }
-      else if(doc["mt"] == "ap") {
-        analogWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+      else
+      {
+        // Print error to the "debug" serial port
+        Serial.print("deserializeJson() returned ");
+        Serial.println(err.c_str());
+  
+        // Flush all bytes in the "link" serial port buffer
+        while (Serial.available() > 0)
+          Serial.read();
       }
-      else {
-        Serial.println("Unknown module type");
-      }
-    }
-    else
-    {
-      // Print error to the "debug" serial port
-      Serial.print("deserializeJson() returned ");
-      Serial.println(err.c_str());
-
-      // Flush all bytes in the "link" serial port buffer
-      while (Serial.available() > 0)
-        Serial.read();
     }
 
     delay(100);
 
-  }
 }
 
 void establishContact() {

@@ -15,6 +15,7 @@ import {
   UnrecognizedHardwareDashboardReceivedEvent
 } from "./contract/events/unrecognized-hardware-dashboard-received-event";
 import {SerialPortConnectionService} from "./serial-port-connection-service";
+import { textChangeRangeIsUnchanged } from "typescript";
 
 type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
@@ -41,7 +42,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       if (err) {
         return console.log('Error on write: ', err.message)
       }
-      console.log('message written')
+      console.log(`message written: ${JSON.stringify(value)}`)
     })
   }
 
@@ -58,7 +59,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       }
     } while (!arduino)
 
-    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 9600, (data: string) => {
+    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 115200, (data: string) => {
       console.log(data)
     })
 
