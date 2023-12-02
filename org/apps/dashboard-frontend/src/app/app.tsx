@@ -43,15 +43,12 @@ export function App() {
   const [isRed, setIsRed] = useState(true);
   const [messages, setMessages] = useState<HardwareDashboardEvent<any>[]>([]);
   const [digitalPinData, setDigitalPinData] = useState< {[p:number]: DigitalPinData}>({2: {pin: 2, value: 0}});
+  const [analogPinData, setAnalogPinData] = useState< {[p:number]: DigitalPinData}>({0: {pin: 0, value: 0}});
 
   useEffect(() => {
     const socket = io('http://localhost:3000'); // Replace with your server URL
 
     socket.on('message', (data: HardwareDashboardEvent<any>) => {
-      console.log(data)
-
-      console.log(messages)
-
       setIsRed(data.payload.value === 0)
 
       setMessages((prevState: HardwareDashboardEvent<any>[]) => [data, ...prevState].slice(0, 10));
@@ -64,6 +61,20 @@ export function App() {
           };
 
           setDigitalPinData((prevState: { [p:number]: DigitalPinData }) => {
+            const newState = {...prevState}
+
+            newState[Number(data.moduleIdentifier)] = digitalPinModuleData
+
+            return newState
+          })
+        }
+        case HardwareDashboardModuleTypes.AnalogPin: {
+          const digitalPinModuleData =  {
+              pin: Number(data.moduleIdentifier),
+              value: Number(data.payload.value),
+          };
+
+          setAnalogPinData((prevState: { [p:number]: DigitalPinData }) => {
             const newState = {...prevState}
 
             newState[Number(data.moduleIdentifier)] = digitalPinModuleData
@@ -105,7 +116,15 @@ export function App() {
         </div>
       </div>
 
-      <StyledGauge id="dockerMem"/>
+      <div style={divStyle}>
+        <div>
+          {Object.values(analogPinData).map((data: DigitalPinData, index: number) => (
+            <p>Pin: {data.pin}, Value: {data.value}</p>
+          ))}
+        </div>
+      </div>
+
+
 
       <div>
         {messages.map((message: HardwareDashboardEvent<any>, index: number) => (

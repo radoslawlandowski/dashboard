@@ -27,6 +27,11 @@ int thirdSensor = 0;    // digital sensor
 int inByte = 0;         // incoming serial byte
 #include <ArduinoJson.h>
 
+int digitalInputs [5] = {2, 3, 4, 5, 6};
+
+int analogInputs [3] = {A0, A1, A2};
+
+
 void setup() {
   // start serial port at 9600 bps:
   Serial.begin(115200);
@@ -42,17 +47,34 @@ void loop() {
   // if we get a valid byte, read analog ins:
 
   if (Serial.available() > 0) {
-    StaticJsonDocument<200> doc;
-    doc["timestamp"] = millis();
-    doc["moduleType"] = "digital-pin";
-    doc["moduleIdentifier"] = "2";
-    JsonObject payload  = doc.createNestedObject("payload");
-    payload["value"] = digitalRead(2);
+    for(int i = 0 ; i < 5 ; i++) {
+      StaticJsonDocument<200> doc;
+      doc["timestamp"] = millis();
+      doc["moduleType"] = "digital-pin";
+      doc["moduleIdentifier"] = digitalInputs[i];
+      JsonObject payload  = doc.createNestedObject("payload");
+      payload["value"] = digitalRead(digitalInputs[i]);
+    
+      // Send the JSON document over the "link" serial port
+      serializeJson(doc, Serial);
   
-    // Send the JSON document over the "link" serial port
-    serializeJson(doc, Serial);
+      Serial.println();
+    }
 
-    Serial.println();
+    for(int i = 0 ; i < 3 ; i++) {
+      StaticJsonDocument<200> analogDoc;
+      analogDoc["timestamp"] = millis();
+      analogDoc["moduleType"] = "analog-pin";
+      analogDoc["moduleIdentifier"] = analogInputs[i];
+      JsonObject payload  = analogDoc.createNestedObject("payload");
+      payload["value"] = analogRead(analogInputs[i]);
+    
+      // Send the JSON document over the "link" serial port
+      serializeJson(analogDoc, Serial);
+  
+      Serial.println();
+    }
+
   }
 }
 
