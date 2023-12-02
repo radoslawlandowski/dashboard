@@ -56,8 +56,8 @@ const hardwareCommandHandlers = [
     WebsocketGateway,
     DistinctUntilChangedInterceptor,
     SerialPortListenerService,
-    // {provide: ArduinoSerialPortConnectionService, useClass: ArduinoSerialPortConnectionService},
-    {provide: ArduinoSerialPortConnectionService, useClass: ConsoleLogSerialPortConnectionService},
+    {provide: ArduinoSerialPortConnectionService, useClass: ArduinoSerialPortConnectionService},
+    // {provide: ArduinoSerialPortConnectionService, useClass: ConsoleLogSerialPortConnectionService},
     ...hardwareEventHandlers,
     ...hardwareCommandHandlers,
     ...systemDataEventHandlers

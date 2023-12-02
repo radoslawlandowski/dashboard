@@ -7,6 +7,7 @@ import {
 import CommandInputComponent from "./command-input.component";
 import StyledGauge from "./styled-gauge";
 import DockerRestartContainerComponent from "./docker-restart-container.component";
+import ConnectToDashboardComponent from "./connect-to-dashboard.component";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -87,6 +88,9 @@ export function App() {
 
   return (
     <div>
+      <div style={divStyle}>
+        <ConnectToDashboardComponent/>
+      </div>
       <div style={divStyle}>
         <DockerRestartContainerComponent/>
       </div>
