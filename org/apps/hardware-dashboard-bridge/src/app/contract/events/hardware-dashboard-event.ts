@@ -9,6 +9,7 @@ export interface HardwareDashboardEvent<T> {
 export enum HardwareDashboardModuleTypes {
   DigitalPin = "digital-pin",
   AnalogPin = "analog-pin",
+  _Bootstrap = "_bootstrap",
   Unrecognized = "unrecognized"
 }
 

@@ -14,6 +14,7 @@ import {DockerStatsEventHandler} from "./metrics-inputs/docker/docker-stats-even
 import {HardwareModule} from "./hardware/hardware.module";
 import {WebsocketGateway} from "./outputs/websocket-gateway";
 import {DistinctUntilChangedInterceptor} from "./interceptors/distinct-until-changed-interceptor.service";
+import {_BootstrapHardwareDashboardEventHandler} from "./event-handlers/_bootstrap-hardware-dashboard-event.handler";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -22,7 +23,8 @@ const systemDataEventHandlers = [
 const hardwareEventHandlers = [
   DigitalPinHardwareDashboardEventHandler,
   AnalogPinHardwareDashboardEventHandler,
-  UnrecognizedHardwareDashboardEventHandler
+  UnrecognizedHardwareDashboardEventHandler,
+  _BootstrapHardwareDashboardEventHandler
 ]
 
 const hardwareCommandHandlers = [
