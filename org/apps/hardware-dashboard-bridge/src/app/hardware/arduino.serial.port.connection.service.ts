@@ -28,8 +28,6 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     ]
   )
 
-  readonly events: HardwareDashboardEvent<any>[] = []
-
   readline: {port: SerialPort, readlineParser: ReadlineParser}
 
   constructor(readonly listener: SerialPortListenerService,
@@ -81,8 +79,6 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
         const eventInstance: HardwareDashboardEvent<any> = plainToInstance(eventType, parsedValue)
 
-        this.events.push(eventInstance)
-
         this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
       } catch(e) {
         console.error(e)
@@ -97,5 +93,4 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-
 }

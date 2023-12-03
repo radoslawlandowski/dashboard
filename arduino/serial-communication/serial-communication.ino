@@ -1,10 +1,18 @@
 #include <ArduinoJson.h>
 
+struct Module {
+  String moduleType;
+  int moduleIdentifier;
+  int value;
+};
+
 int digitalInputs [5] = {2, 3, 4, 5, 6};
+int digitalValues [5] = {0, 0, 0, 0, 0};
 
 int digitalOutputs [5] = {7, 8, 9, 10, 11};
 
 int analogInputs [3] = {A0, A1, A2};
+int analogInputsValues [3] = {0, 0 ,0};
 
 
 void setup() {
@@ -28,30 +36,44 @@ void setup() {
 
 void loop() {
     for(int i = 0 ; i < 5 ; i++) {
+      int digitalValue = digitalRead(digitalInputs[i]);
+      int previousValue = digitalValues[i];
+      digitalValues[i] = digitalValue;
+
+      if(previousValue == digitalValue) {
+        continue;
+      }
+
       StaticJsonDocument<200> doc;
       doc["timestamp"] = millis();
       doc["moduleType"] = "digital-pin";
       doc["moduleIdentifier"] = digitalInputs[i];
       JsonObject payload  = doc.createNestedObject("payload");
-      payload["value"] = digitalRead(digitalInputs[i]);
+      payload["value"] = digitalValue;
     
       // Send the JSON document over the "link" serial port
       serializeJson(doc, Serial);
-  
       Serial.println();
     }
 
     for(int i = 0 ; i < 3 ; i++) {
+      int analogReadValue = analogRead(analogInputs[i]);
+      int previousValue = analogInputsValues[i];
+      analogInputsValues[i] = analogReadValue;
+
+      if((analogReadValue > previousValue - 2) && (analogReadValue < previousValue + 2)) {
+        continue;
+      }
+
       StaticJsonDocument<200> analogDoc;
       analogDoc["timestamp"] = millis();
       analogDoc["moduleType"] = "analog-pin";
       analogDoc["moduleIdentifier"] = analogInputs[i];
       JsonObject payload  = analogDoc.createNestedObject("payload");
-      payload["value"] = analogRead(analogInputs[i]);
-    
+      payload["value"] = analogReadValue;
+      
       // Send the JSON document over the "link" serial port
       serializeJson(analogDoc, Serial);
-  
       Serial.println();
     }
 
