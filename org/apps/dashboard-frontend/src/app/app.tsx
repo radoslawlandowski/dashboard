@@ -8,6 +8,7 @@ import CommandInputComponent from "./command-input.component";
 import StyledGauge from "./styled-gauge";
 import DockerRestartContainerComponent from "./docker-restart-container.component";
 import ConnectToDashboardComponent from "./connect-to-dashboard.component";
+import AnalogCommandInputComponent from "./analog-command-input.component";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -42,7 +43,7 @@ export function App() {
 
   const [isRed, setIsRed] = useState(true);
   const [messages, setMessages] = useState<HardwareDashboardEvent<any>[]>([]);
-  const [digitalPinData, setDigitalPinData] = useState< {[p:number]: DigitalPinData}>({2: {pin: 2, value: 0}});
+  const [digitalPinData, setDigitalPinData] = useState< {[p:number]: DigitalPinData}>({});
   const [analogPinData, setAnalogPinData] = useState< {[p:number]: DigitalPinData}>({0: {pin: 0, value: 0}});
 
   useEffect(() => {
@@ -107,6 +108,9 @@ export function App() {
       </div>
       <div style={divStyle}>
         <CommandInputComponent/>
+      </div>
+      <div style={divStyle}>
+        <AnalogCommandInputComponent/>
       </div>
       <div style={divStyle}>
         <div>

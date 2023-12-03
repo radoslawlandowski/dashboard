@@ -6,10 +6,12 @@ struct Module {
   int value;
 };
 
-int digitalInputs [5] = {2, 3, 4, 5, 6};
+int analogOutputs [2] = {2, 3};
+
+int digitalInputs [5] = {4, 5, 6, 7, 8};
 int digitalValues [5] = {0, 0, 0, 0, 0};
 
-int digitalOutputs [5] = {7, 8, 9, 10, 11};
+int digitalOutputs [5] = {9, 10, 11, 12, 13};
 
 int analogInputs [3] = {A0, A1, A2};
 int analogInputsValues [3] = {0, 0 ,0};
@@ -22,13 +24,24 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  pinMode(2, INPUT);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
 
-  pinMode(7, OUTPUT);
-  pinMode(8, OUTPUT);
+  pinMode(4, INPUT);
+  pinMode(5, INPUT);
+  pinMode(6, INPUT);
+  pinMode(7, INPUT);
+  pinMode(8, INPUT);
+
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
 
     // digital sensor is on digital pin 0
   establishContact();  // send a byte to establish contact until receiver responds
@@ -88,7 +101,7 @@ void loop() {
         break; // Break the loop when newline character is received
       }
       receivedString += incomingChar; // Append the character to the received string
-//       delay(2); // Small delay for stability
+      delay(2); // Small delay for stability
     }
 
     // Do something with the received string
