@@ -1,5 +1,8 @@
 import {useState} from "react";
 
+// @ts-ignore
+import { Knob } from "react-rotary-knob";
+
 const AnalogCommandInputComponent = () => {
   const [commandName, setCommandName] = useState('SetAnalogPinHardwareDashboardCommand');
   const [inputValue, setInputValue] = useState(0);
@@ -32,7 +35,6 @@ const AnalogCommandInputComponent = () => {
       .then(response => response.json())
       .then(data => {
         // Handle the API response data
-        console.log(data)
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -73,6 +75,7 @@ const AnalogCommandInputComponent = () => {
       />
       <p></p>
 
+      <Knob onChange={(value: number) => handleInputChange({target: {value: value}})} min={0} max={255} value={inputValue}/>
       <button onClick={handleButtonClick}>Send</button>
 
     </div>

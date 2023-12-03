@@ -79,7 +79,6 @@ export function App() {
             const newState = {...prevState}
 
             newState[Number(data.moduleIdentifier)] = digitalPinModuleData
-            console.log(newState)
 
             return newState
           })

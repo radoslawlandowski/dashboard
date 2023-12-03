@@ -12,7 +12,6 @@ const ConnectToDashboardComponent = () => {
       .then(response => response.json())
       .then(data => {
         // Handle the API response data
-        console.log(data)
       })
       .catch(error => {
         console.error('Error fetching data:', error);
