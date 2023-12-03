@@ -1,7 +1,7 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable} from "@nestjs/common";
-import {WebsocketGateway} from "../../websocket-gateway";
 import {DockerStatsEvent} from "./docker-interface";
+import {WebsocketGateway} from "../../outputs/websocket-gateway";
 
 @Injectable()
 export class DockerStatsEventHandler {

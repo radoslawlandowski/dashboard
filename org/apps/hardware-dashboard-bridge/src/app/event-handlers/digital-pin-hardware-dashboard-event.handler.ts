@@ -1,9 +1,9 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable} from "@nestjs/common";
-import {WebsocketGateway} from "../websocket-gateway";
 import {
   DigitalPinHardwareDashboardReceivedEvent
 } from "../contract/events/digital-pin-hardware-dashboard-received-event";
+import {WebsocketGateway} from "../outputs/websocket-gateway";
 
 @Injectable()
 export class DigitalPinHardwareDashboardEventHandler {

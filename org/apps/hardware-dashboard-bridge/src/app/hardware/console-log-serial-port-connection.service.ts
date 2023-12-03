@@ -1,13 +1,9 @@
+import {Injectable} from "@nestjs/common";
 import {SerialPort} from "serialport";
 import {ReadlineParser} from "@serialport/parser-readline";
+import {SerialPortConnectionService} from "./serial-port-connection-service";
 
-export interface SerialPortConnectionService {
-  connect(): Promise<void>
-  write(value: object): Promise<void>
-  readline: {port: SerialPort, readlineParser: ReadlineParser}
-
-}
-
+@Injectable()
 export class ConsoleLogSerialPortConnectionService implements SerialPortConnectionService {
   readline: { port: SerialPort; readlineParser: ReadlineParser };
 

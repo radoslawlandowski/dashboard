@@ -1,11 +1,8 @@
 import {Module} from '@nestjs/common';
 
 import {AppController} from './app.controller';
-import {SerialPortListenerService} from "./serial-port-listener.service";
-import {ArduinoSerialPortConnectionService} from "./arduino.serial.port.connection.service";
 import {EventEmitterModule} from "@nestjs/event-emitter";
 import {DigitalPinHardwareDashboardEventHandler} from "./event-handlers/digital-pin-hardware-dashboard-event.handler";
-import {WebsocketGateway} from "./websocket-gateway";
 import {AnalogPinHardwareDashboardEventHandler} from "./event-handlers/analog-pin-hardware-dashboard-event.handler";
 import {
   UnrecognizedHardwareDashboardEventHandler
@@ -13,10 +10,10 @@ import {
 import {SetAnalogPinHardwareDashboardHandler} from "./command-handlers/set-analog-pin-hardware-dashboard.handler";
 import {SetDigitalPinHardwareDashboardHandler} from "./command-handlers/set-digital-pin-hardware-dashboard.handler";
 import {CqrsModule} from "@nestjs/cqrs";
-import {ConsoleLogSerialPortConnectionService} from "./serial-port-connection-service";
-import {DockerStatsEventHandler} from "./trackables/docker/docker-stats-event-handler";
-import {DockerInterfaceModule} from "./trackables/docker/docker-interface.module";
-import {DistinctUntilChangedInterceptor} from "./distinct-until-changed-interceptor.service";
+import {DockerStatsEventHandler} from "./metrics-inputs/docker/docker-stats-event-handler";
+import {HardwareModule} from "./hardware/hardware.module";
+import {WebsocketGateway} from "./outputs/websocket-gateway";
+import {DistinctUntilChangedInterceptor} from "./interceptors/distinct-until-changed-interceptor.service";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -39,6 +36,7 @@ const hardwareCommandHandlers = [
       wildcard: true,
     }),
     CqrsModule,
+    HardwareModule,
     // DockerInterfaceModule.register({
     //   containers: [
     //     {
@@ -55,9 +53,6 @@ const hardwareCommandHandlers = [
   providers: [
     WebsocketGateway,
     DistinctUntilChangedInterceptor,
-    SerialPortListenerService,
-    {provide: ArduinoSerialPortConnectionService, useClass: ArduinoSerialPortConnectionService},
-    // {provide: ArduinoSerialPortConnectionService, useClass: ConsoleLogSerialPortConnectionService},
     ...hardwareEventHandlers,
     ...hardwareCommandHandlers,
     ...systemDataEventHandlers

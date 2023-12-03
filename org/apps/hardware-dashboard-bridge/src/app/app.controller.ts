@@ -1,5 +1,4 @@
 import {Body, Controller, Post, Query} from '@nestjs/common';
-import {ArduinoSerialPortConnectionService} from "./arduino.serial.port.connection.service";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {
   DigitalPinHardwareDashboardReceivedEvent
@@ -7,6 +6,7 @@ import {
 import {CommandBus} from "@nestjs/cqrs";
 import {SetDigitalPinHardwareDashboardCommand} from "./contract/commands/set-digital-pin-hardware-dashboard-command";
 import {SetAnalogPinHardwareDashboardCommand} from "./contract/commands/set-analog-pin-hardware-dashboard-command";
+import {ArduinoSerialPortConnectionService} from "./hardware/arduino.serial.port.connection.service";
 
 @Controller('/hardware-dashboard-bridge')
 export class AppController {

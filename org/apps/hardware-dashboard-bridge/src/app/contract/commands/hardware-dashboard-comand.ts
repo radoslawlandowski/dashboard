@@ -6,7 +6,3 @@ export interface HardwareDashboardCommand<T> {
   payload: T
   timestamp: Date
 }
-
-export interface HardwareDashboardCommandHandler {
-  handle(event: HardwareDashboardCommand<any>): Promise<void>
-}

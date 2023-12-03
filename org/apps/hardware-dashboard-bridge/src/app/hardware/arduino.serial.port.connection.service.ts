@@ -5,17 +5,16 @@ import {ReadlineParser} from "@serialport/parser-readline";
 import {SerialPort} from "serialport";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {plainToInstance} from "class-transformer";
-import {HardwareDashboardEvent, HardwareDashboardModuleTypes} from "./contract/events/hardware-dashboard-event";
+import {SerialPortConnectionService} from "./serial-port-connection-service";
+import {HardwareDashboardEvent, HardwareDashboardModuleTypes} from "../contract/events/hardware-dashboard-event";
 import {
   DigitalPinHardwareDashboardReceivedEvent
-} from "./contract/events/digital-pin-hardware-dashboard-received-event";
-import {AnalogPinHardwareDashboardReceivedEvent} from "./contract/events/analog-pin-hardware-dashboard-received-event";
+} from "../contract/events/digital-pin-hardware-dashboard-received-event";
+import {AnalogPinHardwareDashboardReceivedEvent} from "../contract/events/analog-pin-hardware-dashboard-received-event";
 import {
   UnrecognizedHardwareDashboardEventPayload,
   UnrecognizedHardwareDashboardReceivedEvent
-} from "./contract/events/unrecognized-hardware-dashboard-received-event";
-import {SerialPortConnectionService} from "./serial-port-connection-service";
-import { textChangeRangeIsUnchanged } from "typescript";
+} from "../contract/events/unrecognized-hardware-dashboard-received-event";
 
 type AConstructorTypeOf<T> = new (...args: any[]) => T;
 

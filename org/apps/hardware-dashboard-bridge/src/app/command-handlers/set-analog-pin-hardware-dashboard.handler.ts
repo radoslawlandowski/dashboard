@@ -1,7 +1,7 @@
 import {CommandHandler, ICommandHandler} from "@nestjs/cqrs";
-import {ArduinoSerialPortConnectionService} from "../arduino.serial.port.connection.service";
 import {SetAnalogPinHardwareDashboardCommand} from "../contract/commands/set-analog-pin-hardware-dashboard-command";
 import {AnalogPinHardwareDashboardReceivedEvent} from "../contract/events/analog-pin-hardware-dashboard-received-event";
+import {ArduinoSerialPortConnectionService} from "../hardware/arduino.serial.port.connection.service";
 
 @CommandHandler(SetAnalogPinHardwareDashboardCommand)
 export class SetAnalogPinHardwareDashboardHandler implements ICommandHandler<SetAnalogPinHardwareDashboardCommand> {

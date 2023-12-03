@@ -3,7 +3,7 @@ import {Writable} from "stream";
 import {Inject, Injectable, OnApplicationBootstrap} from "@nestjs/common";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {DockerContainerConfig, DockerModuleConfig} from "./docker-module.config";
-import {Comparable} from "../../comparable";
+import {Comparable} from "../../interceptors/comparable";
 
 export interface DockerReadInterface {
   stats<T extends NodeJS.WritableStream>(statsWritableStream: T) : Promise<void>
