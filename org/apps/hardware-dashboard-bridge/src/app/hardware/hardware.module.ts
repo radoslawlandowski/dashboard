@@ -11,7 +11,8 @@ import {ConsoleLogSerialPortConnectionService} from "./console-log-serial-port-c
     ConsoleLogSerialPortConnectionService,
   ],
   exports: [
-    ArduinoSerialPortConnectionService,
+    // ArduinoSerialPortConnectionService,
+    {provide: ArduinoSerialPortConnectionService, useClass: ConsoleLogSerialPortConnectionService},
     ConsoleLogSerialPortConnectionService,
   ]
 })

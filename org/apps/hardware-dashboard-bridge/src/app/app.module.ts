@@ -15,6 +15,7 @@ import {HardwareModule} from "./hardware/hardware.module";
 import {WebsocketGateway} from "./outputs/websocket-gateway";
 import {DistinctUntilChangedInterceptor} from "./interceptors/distinct-until-changed-interceptor.service";
 import {_BootstrapHardwareDashboardEventHandler} from "./event-handlers/_bootstrap-hardware-dashboard-event.handler";
+import {GitInterfaceModule} from "./metrics-inputs/git/git-interface.module";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -39,6 +40,10 @@ const hardwareCommandHandlers = [
     }),
     CqrsModule,
     HardwareModule,
+    GitInterfaceModule.register({
+      repoDirectory: '/Users/radoslawlandowski/Documents/repos/dashboard',
+      featureBranchName: 'feature-branch'
+    })
     // DockerInterfaceModule.register({
     //   containers: [
     //     {
