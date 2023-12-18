@@ -3,6 +3,9 @@ import {EventEmitterModule} from "@nestjs/event-emitter";
 import {GitController} from "./git.controller";
 import {GitModuleConfig} from "./git-module.config";
 import {GitCommandLineInterface} from "./git.interface";
+import {GitArduinoEventHandler} from "./git-arduino-event-handler";
+import {GitEventHandler} from "./git-event-handler";
+import {WebsocketGateway} from "../../outputs/websocket-gateway";
 
 export class GitInterfaceModule {
   static register(config: GitModuleConfig): DynamicModule {
@@ -12,8 +15,11 @@ export class GitInterfaceModule {
         EventEmitterModule
       ],
       providers: [
+        WebsocketGateway,
         {provide: "GIT_CONFIG", useValue: config},
-        GitCommandLineInterface
+        GitCommandLineInterface,
+        GitArduinoEventHandler,
+        GitEventHandler
       ],
       controllers: [
         GitController

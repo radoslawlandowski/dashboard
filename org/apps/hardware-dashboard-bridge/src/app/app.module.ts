@@ -42,7 +42,17 @@ const hardwareCommandHandlers = [
     HardwareModule,
     GitInterfaceModule.register({
       repoDirectory: '/Users/radoslawlandowski/Documents/repos/dashboard',
-      featureBranchName: 'feature-branch'
+      featureBranchName: 'feature-branch',
+      pinConfig: {
+        pins: {
+          fetch: 2,
+          checkoutDevelop: 3,
+          checkoutMain: 4,
+          isDevelop: 11,
+          isMaster: 12,
+          isFeatureBranch: 13
+        }
+    }
     })
     // DockerInterfaceModule.register({
     //   containers: [
