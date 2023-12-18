@@ -1,18 +1,36 @@
-import {Controller, Post, Query} from '@nestjs/common';
+import {Controller, Get, Post, Query} from '@nestjs/common';
 import {GitCommandLineInterface, GitInterface} from "./git.interface";
 
-@Controller('git/read')
+@Controller('git')
 export class GitController {
 
   constructor(readonly git: GitCommandLineInterface) {
   }
 
-  @Post('status')
+  @Get('read/status')
   async status(): Promise<object> {
     const status = await this.git.status()
 
     return {
       "message": status
+    }
+  }
+
+  @Get('read/fetch')
+  async fetch(): Promise<object> {
+    const fetch = await this.git.fetch()
+
+    return {
+      "message": fetch
+    }
+  }
+
+  @Post('write/checkout')
+  async checkout(@Query('branch') branch: string): Promise<object> {
+    const checkedOut = await this.git.checkout(branch)
+
+    return {
+      "message": checkedOut
     }
   }
 }

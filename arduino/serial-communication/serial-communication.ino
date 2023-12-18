@@ -1,20 +1,13 @@
 #include <ArduinoJson.h>
 
-struct Module {
-  String moduleType;
-  int moduleIdentifier;
-  int value;
-};
+int analogInputsCount = 0;
+int analogInputs [0] = {};
+int analogOutputs [0] = {}; //0-255
+int analogInputsValues [0] = {};
 
-int analogOutputs [2] = {2, 3};
-
-int digitalInputs [5] = {4, 5, 6, 7, 8};
-int digitalValues [5] = {0, 0, 0, 0, 0};
-
-int digitalOutputs [5] = {9, 10, 11, 12, 13};
-
-int analogInputs [3] = {A0, A1, A2};
-int analogInputsValues [3] = {0, 0 ,0};
+int digitalInputsCount = 9;
+int digitalInputs [9] = {2, 3, 4, 5, 6, 7, 8, 9, 10}; // 0, 1
+int digitalValues [9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 void setup() {
@@ -24,21 +17,23 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  pinMode(A2, INPUT);
+  pinMode(A0, OUTPUT);
+  pinMode(A1, OUTPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, OUTPUT);
+  pinMode(A4, OUTPUT);
 
+  // iterate digitalInputs and call pinMode()
+  pinMode(2, INPUT);
+  pinMode(3, INPUT);
   pinMode(4, INPUT);
   pinMode(5, INPUT);
   pinMode(6, INPUT);
   pinMode(7, INPUT);
   pinMode(8, INPUT);
+  pinMode(9, INPUT);
+  pinMode(10, INPUT);
 
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-
-  pinMode(9, OUTPUT);
-  pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
   pinMode(12, OUTPUT);
   pinMode(13, OUTPUT);
@@ -48,7 +43,9 @@ void setup() {
 }
 
 void loop() {
-    for(int i = 0 ; i < 5 ; i++) {
+
+  // READ INPIUTS
+    for(int i = 0 ; i < digitalInputsCount ; i++) {
       int digitalValue = digitalRead(digitalInputs[i]);
       int previousValue = digitalValues[i];
       digitalValues[i] = digitalValue;
@@ -57,7 +54,7 @@ void loop() {
         continue;
       }
 
-      StaticJsonDocument<200> doc;
+      StaticJsonDocument<200> doc; // {"name": "agatka"}, {"pin": 4, "value": 1}
       doc["timestamp"] = millis();
       doc["moduleType"] = "digital-pin";
       doc["moduleIdentifier"] = digitalInputs[i];
@@ -69,7 +66,7 @@ void loop() {
       Serial.println();
     }
 
-    for(int i = 0 ; i < 3 ; i++) {
+    for(int i = 0 ; i < analogInputsCount ; i++) {
       int analogReadValue = analogRead(analogInputs[i]);
       int previousValue = analogInputsValues[i];
       analogInputsValues[i] = analogReadValue;
@@ -95,7 +92,7 @@ void loop() {
     String receivedString = ""; // Initialize an empty string to store incoming data
 
     // Read the incoming data until a newline character '\n' is encountered
-    while (Serial.available() > 0) {
+    while (Serial.available() > 0) { //{"pin": 0, "value": 1}
       char incomingChar = Serial.read(); // Read the incoming byte
       if (incomingChar == '\n') {
         break; // Break the loop when newline character is received
@@ -114,7 +111,7 @@ void loop() {
       {
   
         if(doc["mt"] == "dp") {
-          digitalWrite(doc["mi"].as<int>(), doc["v"].as<int>());
+          digitalWrite(doc["mi"].as<int>(), doc["v"].as<int>()); // digitalWrite(4, 1) // Zapalamy diode
         }
         else if(doc["mt"] == "ap") {
           analogWrite(doc["mi"].as<int>(), doc["v"].as<int>());

@@ -45,3 +45,17 @@ Content-Type: application/json
     "value": 1
   }
 }
+
+### Git Status
+GET http://localhost:3000/api/git/read/status
+Content-Type: application/json
+
+### Git Fetch
+GET http://localhost:3000/api/git/read/fetch
+Content-Type: application/json
+
+### Git checkout
+POST http://localhost:3000/api/git/write/checkout?branch=main
+Content-Type: application/json
+
+{}

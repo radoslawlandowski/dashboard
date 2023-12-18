@@ -9,6 +9,7 @@ import StyledGauge from "./styled-gauge";
 import DockerRestartContainerComponent from "./docker-restart-container.component";
 import ConnectToDashboardComponent from "./connect-to-dashboard.component";
 import AnalogCommandInputComponent from "./analog-command-input.component";
+import {GitDashboard} from "./git-dashboard";
 
 export interface HardwareDashboardEvent<T> {
   moduleType: HardwareDashboardModuleTypes
@@ -18,7 +19,7 @@ export interface HardwareDashboardEvent<T> {
 }
 
 export interface DigitalPinData {
-  pin: number
+  pin: number | string
   value: number
 }
 
@@ -111,6 +112,18 @@ export function App() {
       <div style={divStyle}>
         <AnalogCommandInputComponent/>
       </div>
+
+      <div style={divStyle}>
+        <GitDashboard
+          localChangesOn={Object.values(digitalPinData).find((pinData: DigitalPinData) => pinData.pin === 'A0')?.value || false}
+          fetchPushed={Object.values(digitalPinData).find((pinData: DigitalPinData) => pinData.pin === 2)?.value || false}
+          errorOn={Object.values(digitalPinData).find((pinData: DigitalPinData) => pinData.pin === 'A1')?.value || false}
+          isDevelop={Object.values(digitalPinData).find((pinData: DigitalPinData) => pinData.pin === '11')?.value || false}
+          isMaster={Object.values(digitalPinData).find((pinData: DigitalPinData) => pinData.pin === '12')?.value || false}
+          isFeatureBranch={Object.values(digitalPinData).find((pinData: DigitalPinData) => pinData.pin === '13')?.value || false}
+        />
+      </div>
+
       <div style={divStyle}>
         <div>
           {Object.values(digitalPinData).map((data: DigitalPinData, index: number) => (
@@ -126,7 +139,6 @@ export function App() {
           ))}
         </div>
       </div>
-
 
 
       <div>
