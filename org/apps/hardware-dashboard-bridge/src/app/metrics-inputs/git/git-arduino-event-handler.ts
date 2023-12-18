@@ -40,5 +40,12 @@ export class GitArduinoEventHandler {
 
       console.log(output)
     }
+
+    if(Number(event.moduleIdentifier) === this.config.pinConfig.pins.checkoutFeature && event.payload.value === 1) {
+      console.log("Checkout develop!")
+      const output = await this.gitCommandLineInterface.checkout('some-feature-branch')
+
+      console.log(output)
+    }
   }
 }

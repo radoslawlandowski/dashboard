@@ -9,6 +9,7 @@ export interface PinConfig {
     'fetch': number
     'checkoutMain': number
     'checkoutDevelop': number
+    'checkoutFeature': number
     'isDevelop': number
     'isMaster': number
     'isFeatureBranch': number

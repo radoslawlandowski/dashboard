@@ -46,8 +46,9 @@ const hardwareCommandHandlers = [
       pinConfig: {
         pins: {
           fetch: 2,
-          checkoutDevelop: 3,
+          checkoutDevelop: 5,
           checkoutMain: 4,
+          checkoutFeature: 3,
           isDevelop: 11,
           isMaster: 12,
           isFeatureBranch: 13
