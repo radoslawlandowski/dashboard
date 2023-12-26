@@ -6,13 +6,15 @@ import {GitCommandLineInterface} from "./git.interface";
 import {GitArduinoEventHandler} from "./git-arduino-event-handler";
 import {GitEventHandler} from "./git-event-handler";
 import {WebsocketGateway} from "../../outputs/websocket-gateway";
+import {CqrsModule} from "@nestjs/cqrs";
 
 export class GitInterfaceModule {
   static register(config: GitModuleConfig): DynamicModule {
     return {
       module: GitInterfaceModule,
       imports: [
-        EventEmitterModule
+        EventEmitterModule,
+        CqrsModule
       ],
       providers: [
         WebsocketGateway,

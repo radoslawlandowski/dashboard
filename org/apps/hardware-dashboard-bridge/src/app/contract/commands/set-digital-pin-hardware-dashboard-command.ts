@@ -5,7 +5,7 @@ import {IsNotEmpty, ValidateNested} from "class-validator";
 import {Type} from "class-transformer";
 
 export class SetDigitalPinHardwareDashboardCommand implements HardwareDashboardCommand<DigitalPinHardwareDashboardPayload> {
-  moduleType: HardwareDashboardModuleTypes = HardwareDashboardModuleTypes.AnalogPin
+  moduleType: HardwareDashboardModuleTypes = HardwareDashboardModuleTypes.DigitalPin
 
   @IsNotEmpty()
   moduleIdentifier: string

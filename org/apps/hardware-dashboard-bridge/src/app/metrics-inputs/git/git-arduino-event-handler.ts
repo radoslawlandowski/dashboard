@@ -8,13 +8,18 @@ import {
 } from "../../contract/events/digital-pin-hardware-dashboard-received-event";
 import {HardwareDashboardEvent} from "../../contract/events/hardware-dashboard-event";
 import {GitCommandLineInterface} from "./git.interface";
+import {CommandBus} from "@nestjs/cqrs";
+import {
+  SetDigitalPinHardwareDashboardCommand
+} from "../../contract/commands/set-digital-pin-hardware-dashboard-command";
 
 @Injectable()
 export class GitArduinoEventHandler {
 
   constructor(readonly websocketGateway: WebsocketGateway,
               @Inject("GIT_CONFIG") readonly config: GitModuleConfig,
-              readonly gitCommandLineInterface: GitCommandLineInterface
+              readonly gitCommandLineInterface: GitCommandLineInterface,
+              private readonly commandBus: CommandBus
               ) {
   }
 
@@ -48,6 +53,26 @@ export class GitArduinoEventHandler {
       const output = await this.gitCommandLineInterface.checkout(this.config.featureBranchName)
 
       console.log(output)
+    }
+
+    const currentBranch: string = (await this.gitCommandLineInterface.branch()).trim()
+
+    if (currentBranch === 'develop') {
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeDevelop, {value: 0}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeMaster, {value: 1}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeFeature, {value: 1}))
+    } else if(currentBranch === 'main') {
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeDevelop, {value: 1}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeMaster, {value: 0}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeFeature, {value: 1}))
+    } else if(currentBranch === this.config.featureBranchName) {
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeDevelop, {value: 1}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeMaster, {value: 1}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeFeature, {value: 0}))
+    } else {
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeDevelop, {value: 1}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeMaster, {value: 1}))
+      await this.commandBus.execute(new SetDigitalPinHardwareDashboardCommand(this.config.modulesConfig.outputs.diodeFeature, {value: 1}))
     }
   }
 }

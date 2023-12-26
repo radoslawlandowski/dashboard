@@ -42,6 +42,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       }
       console.log(`message written: ${JSON.stringify(value)}`)
     })
+    this.readline.port.drain(function(err) {
+      if (err) {
+        return console.log('Error on drain: ', err.message)
+      }
+      console.log(`message to drain: ${JSON.stringify(value)}`)
+    })
   }
 
   async disconnect(): Promise<void> {

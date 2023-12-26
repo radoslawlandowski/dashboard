@@ -4,6 +4,7 @@ import {GitModuleConfig} from "./git-module.config";
 
 export interface GitReadInterface {
   status(): Promise<string>
+  branch(): Promise<string>
 }
 
 export interface GitWriteInterface {
@@ -38,6 +39,10 @@ export class GitCommandLineInterface implements GitInterface {
 
   async status(): Promise<string> {
     return await this.runCommand('git', ['diff', '--quiet', '--exit-code', '--cached']);
+  }
+
+  async branch(): Promise<string> {
+    return await this.runCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
   }
 
   private async runCommand(command: string, args: string[]): Promise<string> {

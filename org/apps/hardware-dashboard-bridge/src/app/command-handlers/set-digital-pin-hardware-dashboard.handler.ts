@@ -17,6 +17,12 @@ export class SetDigitalPinHardwareDashboardHandler implements ICommandHandler<Se
       command.payload
     )
 
-    return this.arduinoService.write(object.toArduino())
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    await this.arduinoService.write(object.toArduino())
+
+    await sleep(3000)
   }
 }
