@@ -20,7 +20,8 @@ type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
 @Injectable()
 export class ArduinoSerialPortConnectionService implements SerialPortConnectionService {
-  static ARDUINO_DEVICE_DATA = {vendorId: '2341', productId: '0043'};
+  // static ARDUINO_DEVICE_DATA = {vendorId: '2341', productId: '0043'};
+  static ARDUINO_DEVICE_DATA = {vendorId: '1a86', productId: '7523'}; // move to config
 
   readonly eventMap: Map<HardwareDashboardModuleTypes, AConstructorTypeOf<HardwareDashboardEvent<any>>> = new Map([
       [HardwareDashboardModuleTypes.DigitalPin, DigitalPinHardwareDashboardReceivedEvent],
@@ -43,6 +44,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     })
   }
 
+  async disconnect(): Promise<void> {
+    if (this.readline.port.isOpen) {
+      this.readline.port.close()
+    }
+  }
+
   async connect(): Promise<void> {
     let arduino: PortInfo | undefined
 
@@ -51,6 +58,8 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
       if (!arduino) {
         Logger.error("Device not connected! Awaiting 3 seconds before next attempt...")
+
+        Logger.log(`Devices: ${JSON.stringify(await this.listener.listDevices())}`)
 
         await this.sleep(3000)
       }

@@ -1,17 +1,25 @@
 export interface GitModuleConfig {
   repoDirectory: string
   featureBranchName: string
-  pinConfig: PinConfig
+  modulesConfig: ModulesConfig
 }
 
-export interface PinConfig {
-  pins: {
-    'fetch': number
-    'checkoutMain': number
-    'checkoutDevelop': number
-    'checkoutFeature': number
-    'isDevelop': number
-    'isMaster': number
-    'isFeatureBranch': number
+export interface ModulesConfig {
+  inputs: {
+    'fetch': string
+    'checkoutMain': string
+    'checkoutDevelop': string
+    'checkoutFeature': string
   }
+  outputs: {
+    'diodeChanges': string
+    'diodeError': string
+    'diodeDevelop': string
+    'diodeMaster': string
+    'diodeFeature': string
+  }
+}
+
+export interface HardwareInput {
+  moduleIdentifier: string
 }

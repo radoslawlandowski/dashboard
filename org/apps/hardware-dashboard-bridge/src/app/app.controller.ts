@@ -31,6 +31,15 @@ export class AppController {
     }
   }
 
+  @Post('disconnect')
+  async disconnect(): Promise<object> {
+    await this.service.disconnect()
+
+    return {
+      "message": "Successfully disconnected!"
+    }
+  }
+
   @Post('command/set-digital-pin')
   async setDigitalPin(@Body() value: SetDigitalPinHardwareDashboardCommand): Promise<object> {
     await this.commandBus.execute(value)

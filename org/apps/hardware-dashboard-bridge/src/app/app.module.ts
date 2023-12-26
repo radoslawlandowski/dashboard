@@ -41,31 +41,25 @@ const hardwareCommandHandlers = [
     CqrsModule,
     HardwareModule,
     GitInterfaceModule.register({
-      repoDirectory: '/Users/radoslawlandowski/Documents/repos/dashboard',
-      featureBranchName: 'feature-branch',
-      pinConfig: {
-        pins: {
-          fetch: 2,
-          checkoutDevelop: 5,
-          checkoutMain: 4,
-          checkoutFeature: 3,
-          isDevelop: 11,
-          isMaster: 12,
-          isFeatureBranch: 13
-        }
-    }
+      repoDirectory: '/Users/radoslawlandowski/Documents/repos/test',
+      featureBranchName: 'some-feature-branch',
+      modulesConfig:
+        {
+          inputs: {
+            'fetch': 'button-fetch',
+            'checkoutMain': 'button-checkout-master',
+            'checkoutDevelop': 'button-checkout-develop',
+            'checkoutFeature': 'button-checkout-feature'
+          },
+          outputs: {
+            'diodeChanges': 'd-changes',
+            'diodeError': 'd-error',
+            'diodeDevelop': 'd-develop',
+            'diodeMaster': 'd-master',
+            'diodeFeature': 'd-feature'
+          }
+      }
     })
-    // DockerInterfaceModule.register({
-    //   containers: [
-    //     {
-    //       imageName: 'localstack/localstack',
-    //       name: "localstack-radek",
-    //     }, {
-    //       imageName: 'postgres',
-    //       name: 'postgres-dashboard-radek'
-    //     }
-    //   ]
-    // })
   ],
   controllers: [AppController],
   providers: [

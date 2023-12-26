@@ -20,30 +20,32 @@ export class GitArduinoEventHandler {
 
   @OnEvent(DigitalPinHardwareDashboardReceivedEvent.Queue, {async: true})
   async handle(event: HardwareDashboardEvent<DigitalPinHardwareDashboardPayload>) {
-    if(Number(event.moduleIdentifier) === this.config.pinConfig.pins.fetch && event.payload.value === 1) {
+    if(event.moduleIdentifier === this.config.modulesConfig.inputs.fetch && event.payload.value === 1) {
       console.log("Fetch Aqcuired!")
       const output = await this.gitCommandLineInterface.fetch()
 
       console.log(output)
     }
 
-    if(Number(event.moduleIdentifier) === this.config.pinConfig.pins.checkoutDevelop && event.payload.value === 1) {
+    if(event.moduleIdentifier === this.config.modulesConfig.inputs.checkoutDevelop && event.payload.value === 1) {
       console.log("Checkout develop!")
       const output = await this.gitCommandLineInterface.checkout('develop')
 
       console.log(output)
     }
 
-    if(Number(event.moduleIdentifier) === this.config.pinConfig.pins.checkoutMain && event.payload.value === 1) {
-      console.log("Checkout Main!")
+    if(event.moduleIdentifier === this.config.modulesConfig.inputs.checkoutMain && event.payload.value === 1) {
+      console.log("Checkout main!")
       const output = await this.gitCommandLineInterface.checkout('main')
 
       console.log(output)
     }
 
-    if(Number(event.moduleIdentifier) === this.config.pinConfig.pins.checkoutFeature && event.payload.value === 1) {
+    if(event.moduleIdentifier === this.config.modulesConfig.inputs.checkoutFeature && event.payload.value === 1) {
       console.log("Checkout feature branch!")
-      const output = await this.gitCommandLineInterface.checkout('some-feature-branch')
+      console.log(`git checkout ${this.config.featureBranchName}`)
+
+      const output = await this.gitCommandLineInterface.checkout(this.config.featureBranchName)
 
       console.log(output)
     }

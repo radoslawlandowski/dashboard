@@ -1,94 +1,95 @@
 #include <ArduinoJson.h>
 
-int analogInputsCount = 0;
-int analogInputs [0] = {};
-int analogOutputs [0] = {}; //0-255
-int analogInputsValues [0] = {};
+class Module {
+   private:
+      int pin;
+      char* moduleType;
+      int lastValue;
+      uint8_t mode;
 
-int digitalInputsCount = 9;
-int digitalInputs [9] = {2, 3, 4, 5, 6, 7, 8, 9, 10}; // 0, 1
-int digitalValues [9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  public:
+    char* label;
+    Module(int thePin, char* theModuleType, char* theLabel, uint8_t mode);
+    StaticJsonDocument<200> json();
+    int read();
+    int getLastValue();
+    void setValue(uint8_t newValue);
+};
 
+/*
+    ####### Inputs #######
+*/
+Module button_fetch(2, "digital-pin", "button-fetch", INPUT);
+Module button_checkout_develop(3, "digital-pin", "button-checkout-develop", INPUT);
+Module button_checkout_master(4, "digital-pin", "button-checkout-master", INPUT);
+Module button_checkout_feature(5, "digital-pin", "button-checkout-feature", INPUT);
+
+const int buttons_count = 4;
+Module buttons[4] = {
+  button_fetch,
+  button_checkout_develop,
+  button_checkout_master,
+  button_checkout_feature
+};
+/*
+    ####### Inputs #######
+*/
+
+/*
+    ####### Outputs #######
+*/
+
+const char d_changes[] = "d-changes";
+const char d_error[] = "d-error";
+const char d_develop[] = "d-develop";
+const char d_master[] = "d-master";
+const char d_feature[] = "d-feature";
+
+Module diode_changes(9, "digital-pin", d_changes, OUTPUT);
+Module diode_error(10, "digital-pin", d_error, OUTPUT);
+Module diode_develop(11, "digital-pin", d_develop, OUTPUT);
+Module diode_master(12, "digital-pin", d_master, OUTPUT);
+Module diode_feature(13, "digital-pin", d_feature, OUTPUT);
+
+const int diodes_count = 5;
+Module diodes[5] = {
+  diode_changes,
+  diode_error,
+  diode_develop,
+  diode_master,
+  diode_feature
+};
+/*
+    ####### Outputs #######
+*/
 
 void setup() {
-  // start serial port at 9600 bps:
   Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  pinMode(A0, OUTPUT);
-  pinMode(A1, OUTPUT);
-  pinMode(A2, OUTPUT);
-  pinMode(A3, OUTPUT);
-  pinMode(A4, OUTPUT);
-
-  // iterate digitalInputs and call pinMode()
-  pinMode(2, INPUT);
-  pinMode(3, INPUT);
-  pinMode(4, INPUT);
-  pinMode(5, INPUT);
-  pinMode(6, INPUT);
-  pinMode(7, INPUT);
-  pinMode(8, INPUT);
-  pinMode(9, INPUT);
-  pinMode(10, INPUT);
-
-  pinMode(11, OUTPUT);
-  pinMode(12, OUTPUT);
-  pinMode(13, OUTPUT);
-
-    // digital sensor is on digital pin 0
   establishContact();  // send a byte to establish contact until receiver responds
 }
 
 void loop() {
 
-  // READ INPIUTS
-    for(int i = 0 ; i < digitalInputsCount ; i++) {
-      int digitalValue = digitalRead(digitalInputs[i]);
-      int previousValue = digitalValues[i];
-      digitalValues[i] = digitalValue;
+  // READ by class
+    for(int i = 0 ; i < buttons_count ; i++) {
+      int oldValue = buttons[i].getLastValue();
+      int currentValue = buttons[i].read();
 
-      if(previousValue == digitalValue) {
+      if(oldValue == currentValue) {
         continue;
       }
 
-      StaticJsonDocument<200> doc; // {"name": "agatka"}, {"pin": 4, "value": 1}
-      doc["timestamp"] = millis();
-      doc["moduleType"] = "digital-pin";
-      doc["moduleIdentifier"] = digitalInputs[i];
-      JsonObject payload  = doc.createNestedObject("payload");
-      payload["value"] = digitalValue;
-    
       // Send the JSON document over the "link" serial port
-      serializeJson(doc, Serial);
+      serializeJson(buttons[i].json(), Serial);
       Serial.println();
-    }
-
-    for(int i = 0 ; i < analogInputsCount ; i++) {
-      int analogReadValue = analogRead(analogInputs[i]);
-      int previousValue = analogInputsValues[i];
-      analogInputsValues[i] = analogReadValue;
-
-      if((analogReadValue > previousValue - 2) && (analogReadValue < previousValue + 2)) {
-        continue;
-      }
-
-      StaticJsonDocument<200> analogDoc;
-      analogDoc["timestamp"] = millis();
-      analogDoc["moduleType"] = "analog-pin";
-      analogDoc["moduleIdentifier"] = analogInputs[i];
-      JsonObject payload  = analogDoc.createNestedObject("payload");
-      payload["value"] = analogReadValue;
-      
-      // Send the JSON document over the "link" serial port
-      serializeJson(analogDoc, Serial);
-      Serial.println();
+      delay(300);
     }
 
     // Read the JSON document from the "link" serial port
-
     String receivedString = ""; // Initialize an empty string to store incoming data
 
     // Read the incoming data until a newline character '\n' is encountered
@@ -109,22 +110,26 @@ void loop() {
   
       if (err == DeserializationError::Ok)
       {
-  
-        if(doc["mt"] == "dp") {
-          digitalWrite(doc["mi"].as<int>(), doc["v"].as<int>()); // digitalWrite(4, 1) // Zapalamy diode
-        }
-        else if(doc["mt"] == "ap") {
-          analogWrite(doc["mi"].as<int>(), doc["v"].as<int>());
-        }
-        else {
-          Serial.println("Unknown module type");
+        const char* moduleIdentifier = doc["mi"];
+        const int value = doc["v"].as<int>();
+
+        for(int i = 0 ; i < diodes_count ; i++) {
+          if(strcmp(moduleIdentifier, diodes[i].label) == 0) {
+            diodes[i].setValue(value);
+            break;
+          }
         }
       }
       else
       {
         // Print error to the "debug" serial port
-        Serial.print("deserializeJson() returned ");
-        Serial.println(err.c_str());
+        Serial.print("{\"error\": \"deserializeJson() returned ");
+        Serial.print(err.c_str());
+        Serial.println("\"}");
+                // Print error to the "debug" serial port
+        Serial.print("{\"received\": \"");
+        Serial.print(receivedString);
+        Serial.println("\"}");
   
         // Flush all bytes in the "link" serial port buffer
         while (Serial.available() > 0)
@@ -139,7 +144,7 @@ void establishContact() {
       StaticJsonDocument<200> analogDoc;
       analogDoc["timestamp"] = millis();
       analogDoc["moduleType"] = "_bootstrap";
-      analogDoc["moduleIdentifier"] = "";
+      analogDoc["moduleIdentifier"] = "_bootstrap";
       JsonObject payload  = analogDoc.createNestedObject("payload");
       payload["value"] = "Awaiting handshake bootstrap message from server...";
 
@@ -152,4 +157,42 @@ void establishContact() {
   }
 
   Serial.read();
+}
+
+Module::Module(int thePin, char* theModuleType, char* theLabel, uint8_t theMode)  {
+      pin = thePin;
+      moduleType = theModuleType;
+      label = theLabel;
+      mode = theMode;
+
+      pinMode(pin, mode);
+    }
+
+StaticJsonDocument<200> Module::json() 
+{
+      StaticJsonDocument<200> doc;
+
+      doc["timestamp"] = millis();
+      doc["moduleType"] = "digital-pin";
+      doc["moduleIdentifier"] = label;
+      JsonObject payload  = doc.createNestedObject("payload");
+      payload["value"] = lastValue;
+
+      return doc;
+}
+
+int Module::read() 
+{
+  lastValue = digitalRead(pin);
+  return lastValue;
+}
+
+int Module::getLastValue() 
+{
+  return lastValue;
+}
+
+void Module::setValue(uint8_t newValue) 
+{
+  digitalWrite(pin, newValue);
 }
