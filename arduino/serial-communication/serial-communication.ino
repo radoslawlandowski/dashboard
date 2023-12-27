@@ -1,5 +1,3 @@
-#include <ArduinoJson.h>
-
 class Module {
    private:
       int pin;
@@ -10,7 +8,7 @@ class Module {
   public:
     char* label;
     Module(int thePin, char* theModuleType, char* theLabel, uint8_t mode);
-    StaticJsonDocument<200> json();
+    String json();
     int read();
     int getLastValue();
     void setValue(uint8_t newValue);
@@ -78,6 +76,12 @@ void setup() {
     diodes[i].setValue(1);
   }
 
+  for(int i = 0 ; i < diodes_count ; i++) {
+    diodes[i].setValue(0);
+    delay(500);
+    diodes[i].setValue(1);
+  }
+
   Serial.begin(250000);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -98,7 +102,7 @@ void loop() {
       }
 
       // Send the JSON document over the "link" serial port
-      serializeJson(buttons[i].json(), Serial);
+      Serial.print(buttons[i].json());
       Serial.println();
     }
 
@@ -168,6 +172,16 @@ void establishContact() {
       Serial.print("<_bootstrap,Awaiting handshake bootstrap message from server...>");
       Serial.println();
 
+      for(int i = 0 ; i < diodes_count ; i++) {
+        diodes[i].setValue(0);
+      }
+
+      delay(1000);
+
+      for(int i = 0 ; i < diodes_count ; i++) {
+        diodes[i].setValue(1);
+      }
+
       delay(1000);
   }
 
@@ -185,17 +199,10 @@ Module::Module(int thePin, char* theModuleType, char* theLabel, uint8_t theMode)
       pinMode(pin, mode);
     }
 
-StaticJsonDocument<200> Module::json() 
+String Module::json()
 {
-      StaticJsonDocument<200> doc;
-
-      doc["timestamp"] = millis();
-      doc["moduleType"] = "digital-pin";
-      doc["moduleIdentifier"] = label;
-      JsonObject payload  = doc.createNestedObject("payload");
-      payload["value"] = lastValue;
-
-      return doc;
+    String event = "";
+    return event + String("<dp,") + String(label) + String(",") + String(lastValue) + String('>');
 }
 
 int Module::read() 

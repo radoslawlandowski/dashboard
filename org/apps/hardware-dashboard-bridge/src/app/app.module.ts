@@ -60,7 +60,7 @@ const hardwareCommandHandlers = [
             return new DigitalPinHardwareDashboardReceivedEvent(
               data.appMessage.data[1],
               {
-                value: data.appMessage.data[2]
+                value: Number(data.appMessage.data[2]) as 0 | 1
               }
             )
           }
