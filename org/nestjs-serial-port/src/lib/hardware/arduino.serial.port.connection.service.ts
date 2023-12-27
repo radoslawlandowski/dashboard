@@ -69,18 +69,27 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     let arduino: PortInfo | undefined
 
     do {
+      Logger.log(`Looking for device with vendorId: ${this.config.deviceInfo.vendorId} and productId: ${this.config.deviceInfo.productId}...`)
+
       arduino = await this.listener.findDevice(this.config.deviceInfo)
 
       if (!arduino) {
-        Logger.error("Device not connected! Awaiting 3 seconds before next attempt...")
+        Logger.error("Device not found!")
 
-        Logger.log(`Devices: ${JSON.stringify(await this.listener.listDevices())}`)
+        const devices = await this.listener.listDevices()
+        Logger.log("Available devices: ")
+        for (const device of devices) {
+          Logger.log(`Device: ${JSON.stringify(device, null, 2)}`)
+        }
 
+        Logger.error("Awaiting 3 seconds before next connection attempt...")
         await this.sleep(3000)
       }
     } while (!arduino)
 
-    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 250000, (data: string) => {
+    Logger.log(`Successfully connected to device with vendorId: ${this.config.deviceInfo.vendorId} and productId: ${this.config.deviceInfo.productId}!`)
+
+    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, this.config.baudRate, (data: string) => {
       console.log(data)
     })
 
@@ -91,9 +100,10 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       this.connect()
     })
 
-    await this.sleep(1000)
 
-    this.readline.port.write('A')
+    Logger.log(`Exchanging handshake...`)
+    await this.sleep(1000)
+    this.readline.port.write('A') // Initial handshake byte
 
     this.readline.readlineParser.on('data', (value: string) => {
       try {
@@ -112,6 +122,8 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
         )
       }
     })
+
+    Logger.log(`Success!`)
   }
 
   private sleep(ms: number): Promise<void> {
