@@ -1,0 +1,57 @@
+{
+  "name": "example-serial-port-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/example-serial-port-app/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/example-serial-port-app",
+        "main": "apps/example-serial-port-app/src/main.ts",
+        "tsConfig": "apps/example-serial-port-app/tsconfig.app.json",
+        "assets": ["apps/example-serial-port-app/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/example-serial-port-app/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "example-serial-port-app:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "example-serial-port-app:build:development"
+        },
+        "production": {
+          "buildTarget": "example-serial-port-app:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/example-serial-port-app/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/example-serial-port-app/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

@@ -10,6 +10,6 @@ export class PinValueChangedHardwareMessageHandler {
 
   @OnEvent(PinValueChangedHardwareMessage.appEventName, { async: true })
     async handle(event: PinValueChangedHardwareMessage) {
-        console.log(`Received event about hardware pin value changed: ${event}`)
+        console.log(`Received event about hardware pin value changed: ${JSON.stringify(event)}`)
     }
 }

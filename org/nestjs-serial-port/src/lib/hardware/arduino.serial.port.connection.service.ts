@@ -101,8 +101,9 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
   private setupReadlineParser() {
     this.readline.readlineParser.on('data', (value: string) => {
+      let message: SerialPortFormattedMessage
       try {
-        const message: SerialPortFormattedMessage = this.messageMapper.fromRawString(value)
+        message = this.messageMapper.fromRawString(value)
 
         const fromHardwareMessage: any =
           this.config.hardwareMessages.find((hardwareMessage: any) => hardwareMessage.hardwareEventName! === message.appMessage.name)
@@ -112,6 +113,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
         this.eventEmitter.emit(`${fromHardwareMessage.appEventName}`, eventInstance)
       } catch (e) {
         Logger.error(e)
+        Logger.error(JSON.stringify(message))
 
         this.eventEmitter.emit(_UnrecognizedHardwareDashboardReceivedEvent.appEventName,
           new _UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))

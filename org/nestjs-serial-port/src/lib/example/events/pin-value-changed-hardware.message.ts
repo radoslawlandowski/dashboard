@@ -3,7 +3,7 @@ import {SerialPortFormattedMessage} from "../../hardware/serial-port-formatted-m
 
 export class PinValueChangedHardwareMessage implements FromHardwareMessage<PinValueChangedHardwareMessage> {
   static appEventName = 'from-device.pin-value-changed'
-  static hardwareEventName = 'pvc'
+  static hardwareEventName = 'dp'
 
   static create(hardwareMessage: SerialPortFormattedMessage): PinValueChangedHardwareMessage {
     return new PinValueChangedHardwareMessage(
