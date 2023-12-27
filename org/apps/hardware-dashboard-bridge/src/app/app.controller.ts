@@ -6,7 +6,9 @@ import {
 import {CommandBus} from "@nestjs/cqrs";
 import {SetDigitalPinHardwareDashboardCommand} from "./contract/commands/set-digital-pin-hardware-dashboard-command";
 import {SetAnalogPinHardwareDashboardCommand} from "./contract/commands/set-analog-pin-hardware-dashboard-command";
-import {ArduinoSerialPortConnectionService} from "./hardware/arduino.serial.port.connection.service";
+import {
+  ArduinoSerialPortConnectionService
+} from "../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
 
 @Controller('/hardware-dashboard-bridge')
 export class AppController {

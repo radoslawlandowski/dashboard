@@ -3,7 +3,9 @@ import {SetDigitalPinHardwareDashboardCommand} from "../contract/commands/set-di
 import {
   DigitalPinHardwareDashboardReceivedEvent
 } from "../contract/events/digital-pin-hardware-dashboard-received-event";
-import {ArduinoSerialPortConnectionService} from "../hardware/arduino.serial.port.connection.service";
+import {
+  ArduinoSerialPortConnectionService
+} from "../../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
 
 @CommandHandler(SetDigitalPinHardwareDashboardCommand)
 export class SetDigitalPinHardwareDashboardHandler implements ICommandHandler<SetDigitalPinHardwareDashboardCommand> {

@@ -6,15 +6,20 @@ import {SerialPort} from "serialport";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {plainToInstance} from "class-transformer";
 import {SerialPortConnectionService} from "./serial-port-connection-service";
-import {HardwareDashboardEvent, HardwareDashboardModuleTypes} from "../contract/events/hardware-dashboard-event";
+import {
+  HardwareDashboardEvent,
+  HardwareDashboardModuleTypes
+} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
 import {
   DigitalPinHardwareDashboardReceivedEvent
-} from "../contract/events/digital-pin-hardware-dashboard-received-event";
-import {AnalogPinHardwareDashboardReceivedEvent} from "../contract/events/analog-pin-hardware-dashboard-received-event";
+} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/digital-pin-hardware-dashboard-received-event";
+import {
+  AnalogPinHardwareDashboardReceivedEvent
+} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/analog-pin-hardware-dashboard-received-event";
 import {
   UnrecognizedHardwareDashboardEventPayload,
   UnrecognizedHardwareDashboardReceivedEvent
-} from "../contract/events/unrecognized-hardware-dashboard-received-event";
+} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/unrecognized-hardware-dashboard-received-event";
 
 type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
@@ -97,7 +102,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
         const eventType: AConstructorTypeOf<HardwareDashboardEvent<any>> | undefined = this.eventMap.get(parsedValue['moduleType'])
 
-        const eventInstance: HardwareDashboardEvent<any> = plainToInstance(eventType, parsedValue)
+        const eventInstance: HardwareDashboardEvent<any> = plainToInstance(eventType as any, parsedValue as any) as any
 
         this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
       } catch(e) {

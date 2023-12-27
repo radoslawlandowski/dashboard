@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@org/nestjs-serial-port": ["nestjs-serial-port/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

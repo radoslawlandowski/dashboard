@@ -11,7 +11,7 @@ export class SerialPortListenerService {
     return SerialPort.list()
   }
 
-  async findDevice(findBy: {vendorId: string, productId: string}): Promise<PortInfo> {
+  async findDevice(findBy: {vendorId: string, productId: string}): Promise<PortInfo | undefined> {
     return (await this.listDevices()).find((device: PortInfo) => device.vendorId === findBy.vendorId && device.productId === findBy.productId)
   }
 

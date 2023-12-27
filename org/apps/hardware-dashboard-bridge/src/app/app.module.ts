@@ -11,11 +11,11 @@ import {SetAnalogPinHardwareDashboardHandler} from "./command-handlers/set-analo
 import {SetDigitalPinHardwareDashboardHandler} from "./command-handlers/set-digital-pin-hardware-dashboard.handler";
 import {CqrsModule} from "@nestjs/cqrs";
 import {DockerStatsEventHandler} from "./metrics-inputs/docker/docker-stats-event-handler";
-import {HardwareModule} from "./hardware/hardware.module";
 import {WebsocketGateway} from "./outputs/websocket-gateway";
 import {DistinctUntilChangedInterceptor} from "./interceptors/distinct-until-changed-interceptor.service";
 import {_BootstrapHardwareDashboardEventHandler} from "./event-handlers/_bootstrap-hardware-dashboard-event.handler";
 import {GitInterfaceModule} from "./metrics-inputs/git/git-interface.module";
+import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -39,7 +39,11 @@ const hardwareCommandHandlers = [
       wildcard: true,
     }),
     CqrsModule,
-    HardwareModule,
+    NestjsSerialPortModule.register({
+      baudRate: 250000,
+      deviceInfo: {vendorId: '1a86', productId: '7523'},
+      targetDeviceSerialPortBufferSize: 64
+    }),
     GitInterfaceModule.register({
       repoDirectory: '/Users/radoslawlandowski/Documents/repos/test',
       featureBranchName: 'some-feature-branch',
