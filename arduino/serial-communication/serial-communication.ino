@@ -106,6 +106,13 @@ void loop() {
     strcpy(tempChars, receivedChars);
     parseData();
     showNewData();
+
+    for(int i = 0 ; i < diodes_count ; i++) {
+      if(strcmp(moduleIdentifier, diodes[i].label) == 0) {
+        diodes[i].setValue(value);
+        break;
+      }
+    }
     newData = false;
 }
 
