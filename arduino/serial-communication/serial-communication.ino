@@ -74,6 +74,10 @@ int value = 0;
 boolean newData = false;
 
 void setup() {
+  for(int i = 0 ; i < diodes_count ; i++) {
+    diodes[i].setValue(1);
+  }
+
   Serial.begin(250000);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
