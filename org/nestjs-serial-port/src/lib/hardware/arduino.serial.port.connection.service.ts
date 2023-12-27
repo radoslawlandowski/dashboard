@@ -94,9 +94,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
     Logger.log(`Successfully connected to device with vendorId: ${this.config.deviceInfo.vendorId} and productId: ${this.config.deviceInfo.productId}!`)
 
-    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, this.config.baudRate, (data: string) => {
-      Logger.log(data)
-    })
+    this.readline = this.listener.listen(arduino.path, this.config.baudRate)
 
     this.readline.port.on('error', (err: Error) => {
       Logger.error(err)
