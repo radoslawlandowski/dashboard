@@ -44,7 +44,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       if (err) {
         return Logger.error('Error on write: ', err.message)
       }
-      Logger.log(`message written: ${value}`)
+      Logger.log(`Message written: ${value}`)
     })
 
     return new Promise((resolve, reject) => {
@@ -53,7 +53,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
           Logger.error('Error on drain: ', err.message)
           return reject(err)
         }
-        Logger.verbose(`message drained: ${value}`)
+        Logger.verbose(`Message drained: ${value}`)
         return resolve("OK")
       })
     });
