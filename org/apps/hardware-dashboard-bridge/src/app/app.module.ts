@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {Module, OnApplicationBootstrap} from '@nestjs/common';
 
 import {AppController} from './app.controller';
 import {EventEmitterModule} from "@nestjs/event-emitter";
@@ -16,6 +16,9 @@ import {DistinctUntilChangedInterceptor} from "./interceptors/distinct-until-cha
 import {_BootstrapHardwareDashboardEventHandler} from "./event-handlers/_bootstrap-hardware-dashboard-event.handler";
 import {GitInterfaceModule} from "./metrics-inputs/git/git-interface.module";
 import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
+import {
+  ArduinoSerialPortConnectionService
+} from "../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -74,8 +77,12 @@ const hardwareCommandHandlers = [
     ...systemDataEventHandlers
   ],
 })
-export class AppModule {
+export class AppModule implements OnApplicationBootstrap {
 
-  constructor() {
+  constructor(readonly service: ArduinoSerialPortConnectionService) {
+  }
+
+  async onApplicationBootstrap(): Promise<any> {
+    await this.service.connect()
   }
 }

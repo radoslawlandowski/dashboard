@@ -1,4 +1,4 @@
-import {DynamicModule, Inject} from '@nestjs/common';
+import {DynamicModule, OnModuleInit} from '@nestjs/common';
 import {NestjsSerialPortModuleConfiguration} from "./nestjs-serial-port-module.configuration";
 import {NESTJS_SERIAL_PORT_MODULE_CONFIGURATION} from "./nestjs-serial-port-module.configuration.token";
 import {ArduinoSerialPortConnectionService} from "./hardware/arduino.serial.port.connection.service";
@@ -8,6 +8,8 @@ export class NestjsSerialPortModule {
   static register(configuration: NestjsSerialPortModuleConfiguration): DynamicModule {
     return {
       module: NestjsSerialPortModule,
+      imports: [
+      ],
       providers: [
         {
           provide: NESTJS_SERIAL_PORT_MODULE_CONFIGURATION,
@@ -24,4 +26,3 @@ export class NestjsSerialPortModule {
   }
 }
 
-export const InjectSerialPortConfig = () => Inject(NESTJS_SERIAL_PORT_MODULE_CONFIGURATION) // {vendorId: '1a86', productId: '7523'}

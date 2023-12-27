@@ -105,6 +105,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       this.connect()
     })
 
+    this.setupReadlineParser();
+
+    Logger.log(`Success!`)
+  }
+
+  private setupReadlineParser() {
     this.readline.readlineParser.on('data', (value: string) => {
       try {
         const parsedValue: object = JSON.parse(value)
@@ -114,7 +120,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
         const eventInstance: HardwareDashboardEvent<any> = plainToInstance(eventType as any, parsedValue as any) as any
 
         this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
-      } catch(e) {
+      } catch (e) {
         Logger.error(e)
 
         this.eventEmitter.emit(`hardware-dashboard.received.${HardwareDashboardModuleTypes.Unrecognized}`,
@@ -122,8 +128,6 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
         )
       }
     })
-
-    Logger.log(`Success!`)
   }
 
   private sleep(ms: number): Promise<void> {
