@@ -90,50 +90,43 @@ void loop() {
     }
 
     // Read the JSON document from the "link" serial port
-    String receivedString = ""; // Initialize an empty string to store incoming data
-
     // Read the incoming data until a newline character '\n' is encountered
     while (Serial.available() > 0) { //{"pin": 0, "value": 1}
-      char incomingChar = Serial.read(); // Read the incoming byte
-      if (incomingChar == '\n') {
-        break; // Break the loop when newline character is received
-      }
-      receivedString += incomingChar; // Append the character to the received string
+      String receivedString = Serial.readStringUntil('\n'); // Read the incoming byte
       delay(2); // Small delay for stability
-    }
-
     // Do something with the received string
-    if (receivedString.length() > 0) {      
-      StaticJsonDocument<300> doc;
-  
-      DeserializationError err = deserializeJson(doc, receivedString);
-  
-      if (err == DeserializationError::Ok)
-      {
-        const char* moduleIdentifier = doc["mi"];
-        const int value = doc["v"].as<int>();
+      if (receivedString.length() > 0) {      
+        StaticJsonDocument<300> doc;
+    
+        DeserializationError err = deserializeJson(doc, receivedString);
+    
+        if (err == DeserializationError::Ok)
+        {
+          const char* moduleIdentifier = doc["mi"];
+          const int value = doc["v"].as<int>();
 
-        for(int i = 0 ; i < diodes_count ; i++) {
-          if(strcmp(moduleIdentifier, diodes[i].label) == 0) {
-            diodes[i].setValue(value);
-            break;
+          for(int i = 0 ; i < diodes_count ; i++) {
+            if(strcmp(moduleIdentifier, diodes[i].label) == 0) {
+              diodes[i].setValue(value);
+              break;
+            }
           }
         }
-      }
-      else
-      {
-        // Print error to the "debug" serial port
-        Serial.print("{\"error\": \"deserializeJson() returned ");
-        Serial.print(err.c_str());
-        Serial.println("\"}");
-                // Print error to the "debug" serial port
-        Serial.print("{\"received\": \"");
-        Serial.print(receivedString);
-        Serial.println("\"}");
-  
-        // Flush all bytes in the "link" serial port buffer
-        while (Serial.available() > 0)
-          Serial.read();
+        else
+        {
+          // Print error to the "debug" serial port
+          Serial.print("{\"error\": \"deserializeJson() returned ");
+          Serial.print(err.c_str());
+          Serial.println("\"}");
+                  // Print error to the "debug" serial port
+          Serial.print("{\"received\": \"");
+          Serial.print(receivedString);
+          Serial.println("\"}");
+    
+          // Flush all bytes in the "link" serial port buffer
+          while (Serial.available() > 0)
+            Serial.read();
+        }
       }
     }
 

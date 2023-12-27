@@ -23,6 +23,6 @@ export class SetDigitalPinHardwareDashboardHandler implements ICommandHandler<Se
 
     await this.arduinoService.write(object.toArduino())
 
-    await sleep(3000)
+    await sleep(5)
   }
 }

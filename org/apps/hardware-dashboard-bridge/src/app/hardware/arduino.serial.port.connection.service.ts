@@ -35,19 +35,26 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
               private eventEmitter: EventEmitter2) {
   }
 
-  async write(value: object): Promise<void> {
-    this.readline.port.write(JSON.stringify(value), function(err) {
+  async write(value: object): Promise<any> {
+    let message = JSON.stringify(value) + '\n';
+    const buf = Buffer.from(message, 'utf-8');
+    this.readline.port.write(buf.toString(), function(err) {
       if (err) {
         return console.log('Error on write: ', err.message)
       }
-      console.log(`message written: ${JSON.stringify(value)}`)
+      console.log(`message written: ${message}`)
     })
-    this.readline.port.drain(function(err) {
-      if (err) {
-        return console.log('Error on drain: ', err.message)
-      }
-      console.log(`message to drain: ${JSON.stringify(value)}`)
-    })
+
+    return new Promise((resolve, reject) => {
+      this.readline.port.drain(function(err) {
+        if (err) {
+          console.log('Error on drain: ', err.message)
+          return reject(err)
+        }
+        console.log(`message drained: ${message}`)
+        return resolve("OK")
+      })
+    });
   }
 
   async disconnect(): Promise<void> {
