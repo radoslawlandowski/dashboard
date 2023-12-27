@@ -21,8 +21,4 @@ export class AnalogPinHardwareDashboardReceivedEvent implements HardwareDashboar
     this.moduleIdentifier = moduleIdentifier
     this.payload = payload
   }
-
-  toArduino(): string {
-    return `<${this.moduleIdentifier},${this.payload.value}>`
-  }
 }

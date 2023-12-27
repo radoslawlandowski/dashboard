@@ -20,7 +20,10 @@ import {
   UnrecognizedHardwareDashboardEventPayload,
   UnrecognizedHardwareDashboardReceivedEvent
 } from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/unrecognized-hardware-dashboard-received-event";
-import {InjectSerialPortConfig, NestjsSerialPortModuleConfiguration} from "@org/nestjs-serial-port";
+import {AppMessage} from "./app-message";
+import { NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
+import {InjectSerialPortConfig } from "../inject-serial-port.config";
+import {MessageMapper} from "./message-mapper";
 
 type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
@@ -32,14 +35,19 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     ]
   )
 
-  readline: {port: SerialPort, readlineParser: ReadlineParser}
+  readline: { port: SerialPort, readlineParser: ReadlineParser }
 
   constructor(@InjectSerialPortConfig() readonly config: NestjsSerialPortModuleConfiguration,
               readonly listener: SerialPortListenerService,
+              readonly messageMapper: MessageMapper,
               private eventEmitter: EventEmitter2) {
   }
 
-  async write(value: string): Promise<any> {
+  async write(appMessage: AppMessage): Promise<any> {
+    const message = this.messageMapper.toSerialPortFormattedMessage(appMessage)
+
+    const value = message.content
+
     this.readline.port.write(value, function (err) {
       if (err) {
         return Logger.error('Error on write: ', err.message)
@@ -48,7 +56,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     })
 
     return new Promise((resolve, reject) => {
-      this.readline.port.drain(function(err) {
+      this.readline.port.drain(function (err) {
         if (err) {
           Logger.error('Error on drain: ', err.message)
           return reject(err)

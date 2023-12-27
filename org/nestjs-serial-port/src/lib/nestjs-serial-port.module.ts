@@ -4,6 +4,8 @@ import {NESTJS_SERIAL_PORT_MODULE_CONFIGURATION} from "./nestjs-serial-port-modu
 import {ArduinoSerialPortConnectionService} from "./hardware/arduino.serial.port.connection.service";
 import {SerialPortListenerService} from "./hardware/serial-port-listener.service";
 import {CqrsModule} from "@nestjs/cqrs";
+import {MessageMapper} from "./hardware/message-mapper";
+import {SendMessageHandler} from "./commands/send-message.handler";
 
 export class NestjsSerialPortModule {
   static register(configuration: NestjsSerialPortModuleConfiguration): DynamicModule {
@@ -19,6 +21,8 @@ export class NestjsSerialPortModule {
         },
         ArduinoSerialPortConnectionService,
         SerialPortListenerService,
+        SendMessageHandler,
+        MessageMapper
       ],
       exports: [
         NESTJS_SERIAL_PORT_MODULE_CONFIGURATION,
