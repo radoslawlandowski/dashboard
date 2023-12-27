@@ -20,14 +20,12 @@ import {
   UnrecognizedHardwareDashboardEventPayload,
   UnrecognizedHardwareDashboardReceivedEvent
 } from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/unrecognized-hardware-dashboard-received-event";
+import {InjectSerialPortConfig, NestjsSerialPortModuleConfiguration} from "@org/nestjs-serial-port";
 
 type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
 @Injectable()
 export class ArduinoSerialPortConnectionService implements SerialPortConnectionService {
-  // static ARDUINO_DEVICE_DATA = {vendorId: '2341', productId: '0043'};
-  static ARDUINO_DEVICE_DATA = {vendorId: '1a86', productId: '7523'}; // move to config
-
   readonly eventMap: Map<HardwareDashboardModuleTypes, AConstructorTypeOf<HardwareDashboardEvent<any>>> = new Map([
       [HardwareDashboardModuleTypes.DigitalPin, DigitalPinHardwareDashboardReceivedEvent],
       [HardwareDashboardModuleTypes.AnalogPin, AnalogPinHardwareDashboardReceivedEvent]
@@ -36,12 +34,13 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
   readline: {port: SerialPort, readlineParser: ReadlineParser}
 
-  constructor(readonly listener: SerialPortListenerService,
+  constructor(@InjectSerialPortConfig() readonly config: NestjsSerialPortModuleConfiguration,
+              readonly listener: SerialPortListenerService,
               private eventEmitter: EventEmitter2) {
   }
 
   async write(value: string): Promise<any> {
-    this.readline.port.write(value, function(err) {
+    this.readline.port.write(value, function (err) {
       if (err) {
         return console.log('Error on write: ', err.message)
       }
@@ -70,7 +69,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     let arduino: PortInfo | undefined
 
     do {
-      arduino = await this.listener.findDevice(ArduinoSerialPortConnectionService.ARDUINO_DEVICE_DATA)
+      arduino = await this.listener.findDevice(this.config.deviceInfo)
 
       if (!arduino) {
         Logger.error("Device not connected! Awaiting 3 seconds before next attempt...")

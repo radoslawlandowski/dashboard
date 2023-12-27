@@ -23,8 +23,6 @@ export class SerialPortListenerService {
 
     const port = new SerialPort({ path: devicePath, baudRate: baudRate })
 
-    port.write(`Initialized Serial Connection as: ${SerialPortListenerService.identifier}`)
-
     port.on('readable', function () {
       port.read();
     });
