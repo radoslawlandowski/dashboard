@@ -76,12 +76,6 @@ void setup() {
     diodes[i].setValue(1);
   }
 
-  for(int i = 0 ; i < diodes_count ; i++) {
-    diodes[i].setValue(0);
-    delay(500);
-    diodes[i].setValue(1);
-  }
-
   Serial.begin(250000);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -194,14 +188,16 @@ void establishContact() {
         diodes[i].setValue(0);
       }
 
-      delay(100);
+      delay(50);
 
       for(int i = 0 ; i < diodes_count ; i++) {
         diodes[i].setValue(1);
       }
 
-      delay(50);
+      delay(150);
   }
+
+  delay(2000);
 }
 
 Module::Module(int thePin, char* theModuleType, char* theLabel, uint8_t theMode)  {
