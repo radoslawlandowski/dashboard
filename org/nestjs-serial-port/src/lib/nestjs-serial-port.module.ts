@@ -12,17 +12,14 @@ export class NestjsSerialPortModule {
     return {
       module: NestjsSerialPortModule,
       imports: [
-        CqrsModule,
+        CqrsModule
       ],
       providers: [
-        {
-          provide: NESTJS_SERIAL_PORT_MODULE_CONFIGURATION,
-          useValue: configuration,
-        },
+        { provide: NESTJS_SERIAL_PORT_MODULE_CONFIGURATION, useValue: configuration },
         ArduinoSerialPortConnectionService,
         SerialPortListenerService,
         SendMessageHandler,
-        MessageMapper
+        MessageMapper,
       ],
       exports: [
         NESTJS_SERIAL_PORT_MODULE_CONFIGURATION,
@@ -31,4 +28,3 @@ export class NestjsSerialPortModule {
     };
   }
 }
-

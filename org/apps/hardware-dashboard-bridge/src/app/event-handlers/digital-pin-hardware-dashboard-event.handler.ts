@@ -11,7 +11,7 @@ export class DigitalPinHardwareDashboardEventHandler {
   constructor(readonly websocketGateway: WebsocketGateway) {
   }
 
-  @OnEvent(DigitalPinHardwareDashboardReceivedEvent.Queue, { async: true })
+  @OnEvent(DigitalPinHardwareDashboardReceivedEvent.appEventName, { async: true })
     async handle(event: DigitalPinHardwareDashboardReceivedEvent) {
         console.log(`Received event: ${JSON.stringify(event)}`)
 

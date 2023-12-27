@@ -22,7 +22,7 @@ export class GitArduinoEventHandler {
   ) {
   }
 
-  @OnEvent(DigitalPinHardwareDashboardReceivedEvent.Queue, {async: true})
+  @OnEvent(DigitalPinHardwareDashboardReceivedEvent.appEventName, {async: true})
   async handle(event: HardwareDashboardEvent<DigitalPinHardwareDashboardPayload>) {
     if (event.moduleIdentifier === this.config.modulesConfig.inputs.fetch && event.payload.value === 1) {
       console.log("Fetch Aqcuired!")

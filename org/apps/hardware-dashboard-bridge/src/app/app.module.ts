@@ -53,30 +53,10 @@ const hardwareCommandHandlers = [
       baudRate: 250000,
       deviceInfo: {vendorId: '1a86', productId: '7523'}, // Original Arduino: {vendorId: '2341', productId: '0043'};
       targetDeviceSerialPortBufferSize: 64,
-      eventsFromDevice: {
-        "dp": {
-          eventName: DigitalPinHardwareDashboardReceivedEvent.Queue,
-          eventMapper: (data: SerialPortFormattedMessage) => {
-            return new DigitalPinHardwareDashboardReceivedEvent(
-              data.appMessage.data[1],
-              {
-                value: Number(data.appMessage.data[2]) as 0 | 1
-              }
-            )
-          }
-        },
-        "_bootstrap": {
-          eventName: _BootstrapHardwareDashboardReceivedEvent.Queue,
-          eventMapper: (data: SerialPortFormattedMessage) => {
-            return new _BootstrapHardwareDashboardReceivedEvent(
-              data.appMessage.data[1],
-              {
-                value: data.appMessage.data[2]
-              }
-            )
-          }
-        }
-      }
+      hardwareMessages: [
+        _BootstrapHardwareDashboardReceivedEvent,
+        DigitalPinHardwareDashboardReceivedEvent
+      ],
     }),
     GitInterfaceModule.register({
       repoDirectory: '/Users/radoslawlandowski/Documents/repos/test',

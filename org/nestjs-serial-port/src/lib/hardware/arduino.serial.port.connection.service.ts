@@ -4,27 +4,20 @@ import {Injectable, Logger} from "@nestjs/common";
 import {ReadlineParser} from "@serialport/parser-readline";
 import {SerialPort} from "serialport";
 import {EventEmitter2} from "@nestjs/event-emitter";
-import {plainToInstance} from "class-transformer";
 import {SerialPortConnectionService} from "./serial-port-connection-service";
 import {
-  HardwareDashboardEvent,
   HardwareDashboardModuleTypes
 } from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
-import {
-  DigitalPinHardwareDashboardReceivedEvent
-} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/digital-pin-hardware-dashboard-received-event";
-import {
-  AnalogPinHardwareDashboardReceivedEvent
-} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/analog-pin-hardware-dashboard-received-event";
 import {
   UnrecognizedHardwareDashboardEventPayload,
   UnrecognizedHardwareDashboardReceivedEvent
 } from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/unrecognized-hardware-dashboard-received-event";
 import {AppMessage} from "./app-message";
-import {FromDeviceEvent, NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
-import {InjectSerialPortConfig } from "../inject-serial-port.config";
+import {InjectSerialPortConfig} from "../inject-serial-port.config";
 import {MessageMapper} from "./message-mapper";
 import {SerialPortFormattedMessage} from "./serial-port-formatted-message";
+import {FromHardwareMessage} from "./from-hardware-message";
+import {NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
 
 
 @Injectable()
@@ -115,11 +108,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       try {
         const message: SerialPortFormattedMessage = this.messageMapper.fromRawString(value)
 
-        const fromDeviceEvent: FromDeviceEvent<any> = this.config.eventsFromDevice[message.shortDeviceEventName()]// this.eventMap.get(parsedValue['moduleType'])
+        const fromHardwareMessage: any =
+          this.config.hardwareMessages.find((hardwareMessage: any) => hardwareMessage.hardwareEventName! === message.appMessage.name)
 
-        const eventInstance: any = fromDeviceEvent.eventMapper(message)
+        const eventInstance: any = fromHardwareMessage["create"](message)
 
-        this.eventEmitter.emit(`${String(fromDeviceEvent.eventName)}`, eventInstance)
+        this.eventEmitter.emit(`${String(fromHardwareMessage.appEventName)}`, eventInstance)
       } catch (e) {
         Logger.error(e)
 

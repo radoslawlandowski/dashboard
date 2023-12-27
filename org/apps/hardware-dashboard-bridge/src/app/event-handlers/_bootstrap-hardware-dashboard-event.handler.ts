@@ -13,7 +13,7 @@ export class _BootstrapHardwareDashboardEventHandler {
   constructor(readonly arduinoSerialPortConnectionService: ArduinoSerialPortConnectionService){
   }
 
-  @OnEvent(_BootstrapHardwareDashboardReceivedEvent.Queue, { async: true })
+  @OnEvent(_BootstrapHardwareDashboardReceivedEvent.appEventName, { async: true })
     async handle(event: _BootstrapHardwareDashboardReceivedEvent) {
       Logger.log(`Received event: ${JSON.stringify(event)}`)
 
