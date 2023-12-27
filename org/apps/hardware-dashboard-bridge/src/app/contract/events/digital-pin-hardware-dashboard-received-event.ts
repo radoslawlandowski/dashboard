@@ -8,7 +8,7 @@ export class DigitalPinHardwareDashboardPayload {
 }
 
 export class DigitalPinHardwareDashboardReceivedEvent implements HardwareDashboardEvent<DigitalPinHardwareDashboardPayload> {
-  static Queue = 'hardware-dashboard.received.digital-pin'
+  static Queue = 'from-device.digital-pin'
 
   queue = DigitalPinHardwareDashboardReceivedEvent.Queue
   moduleType: HardwareDashboardModuleTypes = HardwareDashboardModuleTypes.DigitalPin

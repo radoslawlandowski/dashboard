@@ -8,7 +8,7 @@ export class _BootstrapHardwareDashboardPayload {
 }
 
 export class _BootstrapHardwareDashboardReceivedEvent implements HardwareDashboardEvent<_BootstrapHardwareDashboardPayload> {
-  static Queue = 'hardware-dashboard.received._bootstrap'
+  static Queue = 'from-device._bootstrap'
 
   queue = _BootstrapHardwareDashboardReceivedEvent.Queue
   moduleType: HardwareDashboardModuleTypes = HardwareDashboardModuleTypes.DigitalPin

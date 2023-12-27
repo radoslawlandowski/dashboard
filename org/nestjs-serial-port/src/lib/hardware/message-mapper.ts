@@ -15,9 +15,13 @@ export class MessageMapper {
     const serialPortMessage = new SerialPortFormattedMessage(message)
 
     if (serialPortMessage.sizeInBytes() > this.config.targetDeviceSerialPortBufferSize) {
-      throw new Error(`Message size ${serialPortMessage.sizeInBytes()} exceeds the target device serial port buffer size ${this.config.targetDeviceSerialPortBufferSize}!`)
+      throw new Error(`Message size in bytes ${serialPortMessage.sizeInBytes()} exceeds the target device serial port buffer size ${this.config.targetDeviceSerialPortBufferSize}!`)
     }
 
     return serialPortMessage
+  }
+
+  fromRawString(value: string): SerialPortFormattedMessage {
+    return SerialPortFormattedMessage.ofString(value)
   }
 }

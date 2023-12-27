@@ -18,7 +18,7 @@ export class _BootstrapHardwareDashboardEventHandler {
       Logger.log(`Received event: ${JSON.stringify(event)}`)
 
       Logger.log(`Exchanging handshake...`)
-      await this.arduinoSerialPortConnectionService.write({data: ["A"]})
+      await this.arduinoSerialPortConnectionService.write({data: ["A"], name: "_bootstrap"})
       Logger.log(`Connection Established!`)
   }
 }

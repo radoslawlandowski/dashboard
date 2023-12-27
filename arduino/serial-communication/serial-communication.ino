@@ -165,16 +165,7 @@ void recvWithStartEndMarkers() {
 
 void establishContact() {
   while (Serial.available() <= 0) {
-      StaticJsonDocument<200> analogDoc;
-      analogDoc["timestamp"] = millis();
-      analogDoc["moduleType"] = "_bootstrap";
-      analogDoc["moduleIdentifier"] = "_bootstrap";
-      JsonObject payload  = analogDoc.createNestedObject("payload");
-      payload["value"] = "Awaiting handshake bootstrap message from server...";
-
-      // Send the JSON document over the "link" serial port
-      serializeJson(analogDoc, Serial);
-
+      Serial.print("<_bootstrap,Awaiting handshake bootstrap message from server...>");
       Serial.println();
 
       delay(1000);

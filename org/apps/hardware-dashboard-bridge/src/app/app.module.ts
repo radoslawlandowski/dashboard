@@ -19,6 +19,13 @@ import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
 import {
   ArduinoSerialPortConnectionService
 } from "../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
+import {
+  SerialPortFormattedMessage
+} from "../../../../nestjs-serial-port/src/lib/hardware/serial-port-formatted-message";
+import {
+  DigitalPinHardwareDashboardReceivedEvent
+} from "./contract/events/digital-pin-hardware-dashboard-received-event";
+import {_BootstrapHardwareDashboardReceivedEvent} from "./contract/events/_bootstrap-hardware-dashboard-received-event";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -45,7 +52,31 @@ const hardwareCommandHandlers = [
     NestjsSerialPortModule.register({
       baudRate: 250000,
       deviceInfo: {vendorId: '1a86', productId: '7523'}, // Original Arduino: {vendorId: '2341', productId: '0043'};
-      targetDeviceSerialPortBufferSize: 64
+      targetDeviceSerialPortBufferSize: 64,
+      eventsFromDevice: {
+        "dp": {
+          eventName: DigitalPinHardwareDashboardReceivedEvent.Queue,
+          eventMapper: (data: SerialPortFormattedMessage) => {
+            return new DigitalPinHardwareDashboardReceivedEvent(
+              data.appMessage.data[1],
+              {
+                value: data.appMessage.data[2]
+              }
+            )
+          }
+        },
+        "_bootstrap": {
+          eventName: _BootstrapHardwareDashboardReceivedEvent.Queue,
+          eventMapper: (data: SerialPortFormattedMessage) => {
+            return new _BootstrapHardwareDashboardReceivedEvent(
+              data.appMessage.data[1],
+              {
+                value: data.appMessage.data[2]
+              }
+            )
+          }
+        }
+      }
     }),
     GitInterfaceModule.register({
       repoDirectory: '/Users/radoslawlandowski/Documents/repos/test',

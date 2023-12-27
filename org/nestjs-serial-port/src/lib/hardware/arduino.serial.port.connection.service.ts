@@ -21,20 +21,14 @@ import {
   UnrecognizedHardwareDashboardReceivedEvent
 } from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/unrecognized-hardware-dashboard-received-event";
 import {AppMessage} from "./app-message";
-import { NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
+import {FromDeviceEvent, NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
 import {InjectSerialPortConfig } from "../inject-serial-port.config";
 import {MessageMapper} from "./message-mapper";
+import {SerialPortFormattedMessage} from "./serial-port-formatted-message";
 
-type AConstructorTypeOf<T> = new (...args: any[]) => T;
 
 @Injectable()
 export class ArduinoSerialPortConnectionService implements SerialPortConnectionService {
-  readonly eventMap: Map<HardwareDashboardModuleTypes, AConstructorTypeOf<HardwareDashboardEvent<any>>> = new Map([
-      [HardwareDashboardModuleTypes.DigitalPin, DigitalPinHardwareDashboardReceivedEvent],
-      [HardwareDashboardModuleTypes.AnalogPin, AnalogPinHardwareDashboardReceivedEvent]
-    ]
-  )
-
   readline: { port: SerialPort, readlineParser: ReadlineParser }
 
   constructor(@InjectSerialPortConfig() readonly config: NestjsSerialPortModuleConfiguration,
@@ -119,17 +113,17 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
   private setupReadlineParser() {
     this.readline.readlineParser.on('data', (value: string) => {
       try {
-        const parsedValue: object = JSON.parse(value)
+        const message: SerialPortFormattedMessage = this.messageMapper.fromRawString(value)
 
-        const eventType: AConstructorTypeOf<HardwareDashboardEvent<any>> | undefined = this.eventMap.get(parsedValue['moduleType'])
+        const fromDeviceEvent: FromDeviceEvent<any> = this.config.eventsFromDevice[message.shortDeviceEventName()]// this.eventMap.get(parsedValue['moduleType'])
 
-        const eventInstance: HardwareDashboardEvent<any> = plainToInstance(eventType as any, parsedValue as any) as any
+        const eventInstance: any = fromDeviceEvent.eventMapper(message)
 
-        this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
+        this.eventEmitter.emit(`${String(fromDeviceEvent.eventName)}`, eventInstance)
       } catch (e) {
         Logger.error(e)
 
-        this.eventEmitter.emit(`hardware-dashboard.received.${HardwareDashboardModuleTypes.Unrecognized}`,
+        this.eventEmitter.emit(`from-device.received.${HardwareDashboardModuleTypes.Unrecognized}`,
           new UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))
         )
       }
