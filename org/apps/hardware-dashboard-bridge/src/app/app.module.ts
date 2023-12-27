@@ -4,9 +4,6 @@ import {AppController} from './app.controller';
 import {EventEmitterModule} from "@nestjs/event-emitter";
 import {DigitalPinHardwareDashboardEventHandler} from "./event-handlers/digital-pin-hardware-dashboard-event.handler";
 import {AnalogPinHardwareDashboardEventHandler} from "./event-handlers/analog-pin-hardware-dashboard-event.handler";
-import {
-  UnrecognizedHardwareDashboardEventHandler
-} from "./event-handlers/unrecognized-hardware-dashboard-event.handler";
 import {SetAnalogPinHardwareDashboardHandler} from "./command-handlers/set-analog-pin-hardware-dashboard.handler";
 import {SetDigitalPinHardwareDashboardHandler} from "./command-handlers/set-digital-pin-hardware-dashboard.handler";
 import {CqrsModule} from "@nestjs/cqrs";
@@ -28,8 +25,7 @@ const systemDataEventHandlers = [
 
 const hardwareEventHandlers = [
   DigitalPinHardwareDashboardEventHandler,
-  AnalogPinHardwareDashboardEventHandler,
-  UnrecognizedHardwareDashboardEventHandler,
+  AnalogPinHardwareDashboardEventHandler
 ]
 
 const hardwareCommandHandlers = [

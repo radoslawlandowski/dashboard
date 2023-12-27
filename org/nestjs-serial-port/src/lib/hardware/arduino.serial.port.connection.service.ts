@@ -5,19 +5,15 @@ import {ReadlineParser} from "@serialport/parser-readline";
 import {SerialPort} from "serialport";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {SerialPortConnectionService} from "./serial-port-connection-service";
-import {
-  HardwareDashboardModuleTypes
-} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
-import {
-  UnrecognizedHardwareDashboardEventPayload,
-  UnrecognizedHardwareDashboardReceivedEvent
-} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/unrecognized-hardware-dashboard-received-event";
 import {AppMessage} from "./app-message";
 import {InjectSerialPortConfig} from "../inject-serial-port.config";
 import {MessageMapper} from "./message-mapper";
 import {SerialPortFormattedMessage} from "./serial-port-formatted-message";
-import {FromHardwareMessage} from "./from-hardware-message";
 import {NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
+import {
+  _UnrecognizedHardwareDashboardReceivedEvent,
+  UnrecognizedHardwareDashboardEventPayload
+} from "../events/_unrecognized-hardware-dashboard-received-event";
 
 
 @Injectable()
@@ -113,12 +109,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
         const eventInstance: any = fromHardwareMessage["create"](message)
 
-        this.eventEmitter.emit(`${String(fromHardwareMessage.appEventName)}`, eventInstance)
+        this.eventEmitter.emit(`${fromHardwareMessage.appEventName}`, eventInstance)
       } catch (e) {
         Logger.error(e)
 
-        this.eventEmitter.emit(`from-device.received.${HardwareDashboardModuleTypes.Unrecognized}`,
-          new UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))
+        this.eventEmitter.emit(_UnrecognizedHardwareDashboardReceivedEvent.appEventName,
+          new _UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))
         )
       }
     })
