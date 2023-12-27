@@ -63,8 +63,18 @@ Module diodes[5] = {
     ####### Outputs #######
 */
 
+const byte numChars = 64;
+char receivedChars[numChars];
+char tempChars[numChars];        // temporary array for use when parsing
+
+      // variables to hold the parsed data
+char moduleIdentifier[numChars] = {0};
+int value = 0;
+
+boolean newData = false;
+
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(250000);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -86,50 +96,70 @@ void loop() {
       // Send the JSON document over the "link" serial port
       serializeJson(buttons[i].json(), Serial);
       Serial.println();
-      delay(300);
     }
 
     // Read the JSON document from the "link" serial port
     // Read the incoming data until a newline character '\n' is encountered
-    while (Serial.available() > 0) { //{"pin": 0, "value": 1}
-      String receivedString = Serial.readStringUntil('\n'); // Read the incoming byte
-      delay(2); // Small delay for stability
-    // Do something with the received string
-      if (receivedString.length() > 0) {      
-        StaticJsonDocument<300> doc;
-    
-        DeserializationError err = deserializeJson(doc, receivedString);
-    
-        if (err == DeserializationError::Ok)
-        {
-          const char* moduleIdentifier = doc["mi"];
-          const int value = doc["v"].as<int>();
+    // message: {"mi":"d-master","v":"1"}\n
 
-          for(int i = 0 ; i < diodes_count ; i++) {
-            if(strcmp(moduleIdentifier, diodes[i].label) == 0) {
-              diodes[i].setValue(value);
-              break;
-            }
-          }
-        }
-        else
-        {
-          // Print error to the "debug" serial port
-          Serial.print("{\"error\": \"deserializeJson() returned ");
-          Serial.print(err.c_str());
-          Serial.println("\"}");
-                  // Print error to the "debug" serial port
-          Serial.print("{\"received\": \"");
-          Serial.print(receivedString);
-          Serial.println("\"}");
-    
-          // Flush all bytes in the "link" serial port buffer
-          while (Serial.available() > 0)
-            Serial.read();
-        }
-      }
+    recvWithStartEndMarkers();
+    strcpy(tempChars, receivedChars);
+    parseData();
+    showNewData();
+    newData = false;
+}
+
+void parseData() {      // split the data into its parts
+
+    char * strtokIndx; // this is used by strtok() as an index
+
+    strtokIndx = strtok(tempChars,",");      // get the first part - the string
+    strcpy(moduleIdentifier, strtokIndx); // copy it to messageFromPC
+ 
+    strtokIndx = strtok(NULL, ",");
+    value = atoi(strtokIndx);     // convert this part to a float
+
+}
+
+void showNewData() {
+    if (newData == true) {
+          Serial.print("Mod Id ");
+          Serial.println(moduleIdentifier);
+          Serial.print("Value ");
+          Serial.println(value);
     }
+}
 
+void recvWithStartEndMarkers() {
+    static boolean recvInProgress = false;
+    static byte ndx = 0;
+    char startMarker = '<';
+    char endMarker = '>';
+    char rc;
+ 
+    while (Serial.available() > 0 && newData == false) {
+        rc = Serial.read();
+
+        if (recvInProgress == true) {
+            if (rc != endMarker) {
+                receivedChars[ndx] = rc;
+                ndx++;
+                if (ndx >= numChars) {
+                    ndx = numChars - 1;
+                }
+            }
+            else {
+                receivedChars[ndx] = '\0'; // terminate the string
+                recvInProgress = false;
+                ndx = 0;
+                newData = true;
+            }
+        }
+
+        else if (rc == startMarker) {
+            recvInProgress = true;
+        }
+    }
 }
 
 void establishContact() {
@@ -149,7 +179,9 @@ void establishContact() {
       delay(1000);
   }
 
-  Serial.read();
+  while (Serial.available() > 0) {
+      Serial.read();
+  }
 }
 
 Module::Module(int thePin, char* theModuleType, char* theLabel, uint8_t theMode)  {
