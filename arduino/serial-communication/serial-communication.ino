@@ -176,17 +176,31 @@ void establishContact() {
         diodes[i].setValue(0);
       }
 
-      delay(1000);
+      delay(300);
 
       for(int i = 0 ; i < diodes_count ; i++) {
         diodes[i].setValue(1);
       }
 
-      delay(1000);
+      delay(300);
   }
 
   while (Serial.available() > 0) {
       Serial.read();
+  }
+
+  for(int j = 0 ; j < 3 ; j++) {
+      for(int i = 0 ; i < diodes_count ; i++) {
+        diodes[i].setValue(0);
+      }
+
+      delay(100);
+
+      for(int i = 0 ; i < diodes_count ; i++) {
+        diodes[i].setValue(1);
+      }
+
+      delay(50);
   }
 }
 
