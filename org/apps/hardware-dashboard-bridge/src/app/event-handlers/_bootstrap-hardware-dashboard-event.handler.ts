@@ -1,5 +1,5 @@
 import {OnEvent} from "@nestjs/event-emitter";
-import {Injectable} from "@nestjs/common";
+import {Injectable, Logger} from "@nestjs/common";
 import {
   _BootstrapHardwareDashboardReceivedEvent
 } from "../contract/events/_bootstrap-hardware-dashboard-received-event";
@@ -15,8 +15,10 @@ export class _BootstrapHardwareDashboardEventHandler {
 
   @OnEvent(_BootstrapHardwareDashboardReceivedEvent.Queue, { async: true })
     async handle(event: _BootstrapHardwareDashboardReceivedEvent) {
-        console.log(`Received event: ${JSON.stringify(event)}`)
+      Logger.log(`Received event: ${JSON.stringify(event)}`)
 
-        await this.arduinoSerialPortConnectionService.write("0")
-    }
+      Logger.log(`Exchanging handshake...`)
+      await this.arduinoSerialPortConnectionService.write("A")
+      Logger.log(`Connection Established!`)
+  }
 }

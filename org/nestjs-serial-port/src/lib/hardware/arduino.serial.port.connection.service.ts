@@ -42,26 +42,31 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
   async write(value: string): Promise<any> {
     this.readline.port.write(value, function (err) {
       if (err) {
-        return console.log('Error on write: ', err.message)
+        return Logger.error('Error on write: ', err.message)
       }
-      console.log(`message written: ${value}`)
+      Logger.log(`message written: ${value}`)
     })
 
     return new Promise((resolve, reject) => {
       this.readline.port.drain(function(err) {
         if (err) {
-          console.log('Error on drain: ', err.message)
+          Logger.error('Error on drain: ', err.message)
           return reject(err)
         }
-        console.log(`message drained: ${value}`)
+        Logger.verbose(`message drained: ${value}`)
         return resolve("OK")
       })
     });
   }
 
   async disconnect(): Promise<void> {
+    Logger.log(`Disconnecting...`)
+
     if (this.readline.port.isOpen) {
       this.readline.port.close()
+      Logger.log(`Disconnected!`)
+    } else {
+      Logger.warn(`No connection!`)
     }
   }
 
@@ -90,20 +95,15 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
     Logger.log(`Successfully connected to device with vendorId: ${this.config.deviceInfo.vendorId} and productId: ${this.config.deviceInfo.productId}!`)
 
     this.readline = this.listener.listenAndEmitOnNewline(arduino.path, this.config.baudRate, (data: string) => {
-      console.log(data)
+      Logger.log(data)
     })
 
     this.readline.port.on('error', (err: Error) => {
-      console.error(err)
-      console.error(`Reconnecting...`)
+      Logger.error(err)
+      Logger.log(`Reconnecting...`)
 
       this.connect()
     })
-
-
-    Logger.log(`Exchanging handshake...`)
-    await this.sleep(1000)
-    this.readline.port.write('A') // Initial handshake byte
 
     this.readline.readlineParser.on('data', (value: string) => {
       try {
@@ -115,7 +115,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
         this.eventEmitter.emit(`hardware-dashboard.received.${eventInstance.moduleType}`, eventInstance)
       } catch(e) {
-        console.error(e)
+        Logger.error(e)
 
         this.eventEmitter.emit(`hardware-dashboard.received.${HardwareDashboardModuleTypes.Unrecognized}`,
           new UnrecognizedHardwareDashboardReceivedEvent(new UnrecognizedHardwareDashboardEventPayload(value, e))
