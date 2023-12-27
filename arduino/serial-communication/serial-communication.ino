@@ -105,7 +105,6 @@ void loop() {
     recvWithStartEndMarkers();
     strcpy(tempChars, receivedChars);
     parseData();
-    showNewData();
 
     for(int i = 0 ; i < diodes_count ; i++) {
       if(strcmp(moduleIdentifier, diodes[i].label) == 0) {
@@ -126,15 +125,6 @@ void parseData() {      // split the data into its parts
     strtokIndx = strtok(NULL, ",");
     value = atoi(strtokIndx);     // convert this part to a float
 
-}
-
-void showNewData() {
-    if (newData == true) {
-          Serial.print("Mod Id ");
-          Serial.println(moduleIdentifier);
-          Serial.print("Value ");
-          Serial.println(value);
-    }
 }
 
 void recvWithStartEndMarkers() {

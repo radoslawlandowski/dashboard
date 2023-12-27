@@ -22,11 +22,7 @@ export class AnalogPinHardwareDashboardReceivedEvent implements HardwareDashboar
     this.payload = payload
   }
 
-  toArduino(): object {
-    return {
-      mt: 'ap',
-      mi: this.moduleIdentifier,
-      v: this.payload.value
-    }
+  toArduino(): string {
+    return `<${this.moduleIdentifier},${this.payload.value}>`
   }
 }

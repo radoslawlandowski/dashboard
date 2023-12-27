@@ -35,14 +35,12 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
               private eventEmitter: EventEmitter2) {
   }
 
-  async write(value: object): Promise<any> {
-    let message = JSON.stringify(value) + '\n';
-    const buf = Buffer.from(message, 'utf-8');
-    this.readline.port.write(buf.toString(), function(err) {
+  async write(value: string): Promise<any> {
+    this.readline.port.write(value, function(err) {
       if (err) {
         return console.log('Error on write: ', err.message)
       }
-      console.log(`message written: ${message}`)
+      console.log(`message written: ${value}`)
     })
 
     return new Promise((resolve, reject) => {
@@ -51,7 +49,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
           console.log('Error on drain: ', err.message)
           return reject(err)
         }
-        console.log(`message drained: ${message}`)
+        console.log(`message drained: ${value}`)
         return resolve("OK")
       })
     });
@@ -78,7 +76,7 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       }
     } while (!arduino)
 
-    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 115200, (data: string) => {
+    this.readline = this.listener.listenAndEmitOnNewline(arduino.path, 250000, (data: string) => {
       console.log(data)
     })
 

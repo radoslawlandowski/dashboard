@@ -12,7 +12,7 @@ export class ConsoleLogSerialPortConnectionService implements SerialPortConnecti
     return Promise.resolve(undefined);
   }
 
-  async write(value: object): Promise<any> {
+  async write(value: string): Promise<any> {
     console.log(`Written!`)
     console.log(JSON.stringify(value))
     console.log('\n')

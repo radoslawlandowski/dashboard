@@ -19,6 +19,6 @@ export class _BootstrapHardwareDashboardEventHandler {
     async handle(event: _BootstrapHardwareDashboardReceivedEvent) {
         console.log(`Received event: ${JSON.stringify(event)}`)
 
-        await this.arduinoSerialPortConnectionService.write({})
+        await this.arduinoSerialPortConnectionService.write("0")
     }
 }
