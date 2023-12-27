@@ -6,6 +6,8 @@ import {SerialPortListenerService} from "./hardware/serial-port-listener.service
 import {CqrsModule} from "@nestjs/cqrs";
 import {MessageMapper} from "./hardware/message-mapper";
 import {SendMessageHandler} from "./commands/send-message.handler";
+import {_BootstrapHardwareDashboardEventHandler} from "./event-handlers/_bootstrap-hardware-dashboard-event.handler";
+import {_BootstrapHardwareDashboardReceivedEvent} from "./events/_bootstrap-hardware-dashboard-received-event";
 
 export class NestjsSerialPortModule {
   static register(configuration: NestjsSerialPortModuleConfiguration): DynamicModule {
@@ -15,11 +17,14 @@ export class NestjsSerialPortModule {
         CqrsModule
       ],
       providers: [
-        { provide: NESTJS_SERIAL_PORT_MODULE_CONFIGURATION, useValue: configuration },
+        { provide: NESTJS_SERIAL_PORT_MODULE_CONFIGURATION, useValue: {
+          ...configuration, hardwareMessages: [...configuration.hardwareMessages, _BootstrapHardwareDashboardReceivedEvent]
+          } },
         ArduinoSerialPortConnectionService,
         SerialPortListenerService,
         SendMessageHandler,
         MessageMapper,
+        _BootstrapHardwareDashboardEventHandler
       ],
       exports: [
         NESTJS_SERIAL_PORT_MODULE_CONFIGURATION,

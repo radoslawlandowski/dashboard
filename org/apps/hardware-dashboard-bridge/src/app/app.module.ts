@@ -13,19 +13,14 @@ import {CqrsModule} from "@nestjs/cqrs";
 import {DockerStatsEventHandler} from "./metrics-inputs/docker/docker-stats-event-handler";
 import {WebsocketGateway} from "./outputs/websocket-gateway";
 import {DistinctUntilChangedInterceptor} from "./interceptors/distinct-until-changed-interceptor.service";
-import {_BootstrapHardwareDashboardEventHandler} from "./event-handlers/_bootstrap-hardware-dashboard-event.handler";
 import {GitInterfaceModule} from "./metrics-inputs/git/git-interface.module";
 import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
 import {
   ArduinoSerialPortConnectionService
 } from "../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
 import {
-  SerialPortFormattedMessage
-} from "../../../../nestjs-serial-port/src/lib/hardware/serial-port-formatted-message";
-import {
   DigitalPinHardwareDashboardReceivedEvent
 } from "./contract/events/digital-pin-hardware-dashboard-received-event";
-import {_BootstrapHardwareDashboardReceivedEvent} from "./contract/events/_bootstrap-hardware-dashboard-received-event";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -35,7 +30,6 @@ const hardwareEventHandlers = [
   DigitalPinHardwareDashboardEventHandler,
   AnalogPinHardwareDashboardEventHandler,
   UnrecognizedHardwareDashboardEventHandler,
-  _BootstrapHardwareDashboardEventHandler
 ]
 
 const hardwareCommandHandlers = [
@@ -54,7 +48,6 @@ const hardwareCommandHandlers = [
       deviceInfo: {vendorId: '1a86', productId: '7523'}, // Original Arduino: {vendorId: '2341', productId: '0043'};
       targetDeviceSerialPortBufferSize: 64,
       hardwareMessages: [
-        _BootstrapHardwareDashboardReceivedEvent,
         DigitalPinHardwareDashboardReceivedEvent
       ],
     }),
@@ -76,7 +69,7 @@ const hardwareCommandHandlers = [
             'diodeMaster': 'd-master',
             'diodeFeature': 'd-feature'
           }
-      }
+        }
     })
   ],
   controllers: [AppController],

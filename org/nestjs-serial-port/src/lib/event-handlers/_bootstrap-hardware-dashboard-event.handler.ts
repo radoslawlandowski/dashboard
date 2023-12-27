@@ -1,11 +1,7 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable, Logger} from "@nestjs/common";
-import {
-  _BootstrapHardwareDashboardReceivedEvent
-} from "../contract/events/_bootstrap-hardware-dashboard-received-event";
-import {
-  ArduinoSerialPortConnectionService
-} from "../../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
+import {_BootstrapHardwareDashboardReceivedEvent} from "../events/_bootstrap-hardware-dashboard-received-event";
+import {ArduinoSerialPortConnectionService} from "../hardware/arduino.serial.port.connection.service";
 
 @Injectable()
 export class _BootstrapHardwareDashboardEventHandler {

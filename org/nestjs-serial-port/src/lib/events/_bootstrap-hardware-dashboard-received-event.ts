@@ -1,9 +1,9 @@
-import {HardwareDashboardEvent, HardwareDashboardModuleTypes} from "./hardware-dashboard-event";
 import {IsIn, IsNumber, ValidateNested} from "class-validator";
-import {FromHardwareMessage} from "../../../../../../nestjs-serial-port/src/lib/hardware/from-hardware-message";
 import {
-  SerialPortFormattedMessage
-} from "../../../../../../nestjs-serial-port/src/lib/hardware/serial-port-formatted-message";
+  HardwareDashboardEvent, HardwareDashboardModuleTypes
+} from "../../../../apps/hardware-dashboard-bridge/src/app/contract/events/hardware-dashboard-event";
+import {FromHardwareMessage} from "../hardware/from-hardware-message";
+import {SerialPortFormattedMessage} from "../hardware/serial-port-formatted-message";
 
 export class _BootstrapHardwareDashboardPayload {
   @IsIn([0, 1])
