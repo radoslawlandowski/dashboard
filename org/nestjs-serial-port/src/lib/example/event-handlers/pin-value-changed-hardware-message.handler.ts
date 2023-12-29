@@ -1,6 +1,7 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable, Logger} from "@nestjs/common";
-import {APP_EVENT_NAME_PROP, PinValueChangedHardwareMessage} from "../events/pin-value-changed-hardware.message";
+import {PinValueChangedHardwareMessage} from "../events/pin-value-changed-hardware.message";
+import {APP_EVENT_NAME_PROP} from "../../hardware/hardware-message-decorators";
 
 @Injectable()
 export class PinValueChangedHardwareMessageHandler {
