@@ -20,8 +20,4 @@ export class SerialPortFormattedMessage {
   sizeInBytes(): number {
     return Buffer.byteLength(this.content, 'utf-8')
   }
-
-  shortDeviceEventName(): string {
-    return this.appMessage.data[0]
-  }
 }
