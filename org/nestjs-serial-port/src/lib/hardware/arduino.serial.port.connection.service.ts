@@ -124,7 +124,6 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
   private setupReadlineParser() {
     this.readline.readlineParser.on('data', (value: string) => {
       Logger.log(`Received from device (raw data): ${value}`, 'from-device')
-      console.log(`Received from device (raw data): ${value}`, 'from-device')
 
       let message: SerialPortFormattedMessage | undefined = undefined
       try {

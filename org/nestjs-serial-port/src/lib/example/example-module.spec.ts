@@ -1,9 +1,12 @@
 import {Test, TestingModule} from '@nestjs/testing'
 import {MockBinding, MockPortBinding} from '@serialport/binding-mock'
-import {Module} from "@nestjs/common";
-import {EventEmitterModule} from "@nestjs/event-emitter";
+import {Injectable, Logger, Module} from "@nestjs/common";
+import {EventEmitterModule, OnEvent} from "@nestjs/event-emitter";
 import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
-import {PinValueChangedHardwareMessage} from "./events/pin-value-changed-hardware.message";
+import {
+  FROM_DEVICE_PIN_VALUE_CHANGED_EVENT,
+  PinValueChangedHardwareMessage
+} from "./events/pin-value-changed-hardware.message";
 import {SerialPortListenerService} from "../hardware/serial-port-listener.service";
 import {ArduinoSerialPortConnectionService} from "../hardware/arduino.serial.port.connection.service";
 import {DefaultAppMessage} from "../hardware/app-message";
@@ -11,9 +14,21 @@ import {PinValueChangedHardwareMessageHandler} from "./event-handlers/pin-value-
 import {TasksService} from "../../../../apps/example-serial-port-app/src/app/tasks.service";
 import {CqrsModule} from "@nestjs/cqrs";
 
-process.env["NODE_SERIAL_PORT_TEST"] = 'true'
-
 const devicePath = '/dev/example'
+
+@Injectable()
+export class TestPinValueChangedHardwareMessageHandler {
+  readonly events: PinValueChangedHardwareMessage[] = []
+
+  constructor() {
+  }
+
+  @OnEvent(FROM_DEVICE_PIN_VALUE_CHANGED_EVENT, {async: true})
+  async handle(event: PinValueChangedHardwareMessage) {
+    this.events.push(event)
+    Logger.log(`Received event about hardware pin value changed: ${JSON.stringify(event)}`, 'from-device')
+  }
+}
 
 @Module({
   imports: [
@@ -31,7 +46,7 @@ const devicePath = '/dev/example'
     })
   ],
     providers: [
-      PinValueChangedHardwareMessageHandler
+      TestPinValueChangedHardwareMessageHandler
   ]
 })
 export class ExampleTestModule {
@@ -40,8 +55,9 @@ export class ExampleTestModule {
 describe('Test', function () {
 
   let arduinoSerialPortConnectionService: ArduinoSerialPortConnectionService
+  let testPinValueChangedHardwareMessageHandler: TestPinValueChangedHardwareMessageHandler
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         ExampleTestModule,
@@ -51,16 +67,16 @@ describe('Test', function () {
     await moduleFixture.init()
 
     arduinoSerialPortConnectionService = moduleFixture.get(ArduinoSerialPortConnectionService)
+    testPinValueChangedHardwareMessageHandler = moduleFixture.get(TestPinValueChangedHardwareMessageHandler)
+
+    process.env["NODE_SERIAL_PORT_TEST"] = 'true'
 
     MockBinding.reset()
     MockBinding.createPort(devicePath, {echo: true, record: true})
   })
 
-  beforeEach(async () => {
-  })
-
   describe('Ok ', function () {
-    it('should work', async function () {
+    it('writing should work', async function () {
       await arduinoSerialPortConnectionService.connect()
 
       await arduinoSerialPortConnectionService.write(new DefaultAppMessage(["dp", "1", "1"]))
@@ -71,6 +87,26 @@ describe('Test', function () {
       const messages = port.recording.toString()
 
       expect(messages).toEqual('<dp,1,1><dp,2,1>')
+    })
+
+    it('receiving should work', async function () {
+      await arduinoSerialPortConnectionService.connect()
+      await arduinoSerialPortConnectionService.write(new DefaultAppMessage(["dp", 1, 1]))
+
+      const port: MockPortBinding = arduinoSerialPortConnectionService.readline.port.port as unknown as MockPortBinding
+
+      port.emitData('<dp,1,1>\n')
+      port.emitData('<dp,3,0>\n')
+
+      let events = []
+      do {
+        events = testPinValueChangedHardwareMessageHandler.events
+
+        await sleep(10)
+      } while (events.length < 2)
+
+      expect(events[0]).toEqual(new PinValueChangedHardwareMessage("dp", "1", "1"))
+      expect(events[1]).toEqual(new PinValueChangedHardwareMessage("dp", "3", "0"))
     })
   })
 })

@@ -5,6 +5,6 @@ export const FROM_DEVICE_PIN_VALUE_CHANGED_EVENT = 'from-device.pin-value-change
 
 @HardwareMessage('dp', FROM_DEVICE_PIN_VALUE_CHANGED_EVENT, "<dp,10,1>")
 export class PinValueChangedHardwareMessage implements FromHardwareMessage<PinValueChangedHardwareMessage> {
-  constructor(readonly hardwareEventName: string, readonly pin: number, readonly value: number) {
+  constructor(readonly hardwareEventName: string, readonly pin: string, readonly value: string) {
   }
 }
