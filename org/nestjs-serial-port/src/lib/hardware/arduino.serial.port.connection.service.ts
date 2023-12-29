@@ -31,11 +31,13 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
     const value = message.content
 
+    Logger.log(`Sending to device: ${value}`, 'to-device')
+
     this.readline.port.write(value, function (err) {
       if (err) {
         return Logger.error('Error on write: ', err.message)
       }
-      Logger.log(`Message written: ${value}`)
+      Logger.log(`Success!`, 'to-device')
     })
 
     return new Promise((resolve, reject) => {
@@ -44,7 +46,6 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
           Logger.error('Error on drain: ', err.message)
           return reject(err)
         }
-        Logger.verbose(`Message drained: ${value}`)
         return resolve("OK")
       })
     });
@@ -101,12 +102,18 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
 
   private setupReadlineParser() {
     this.readline.readlineParser.on('data', (value: string) => {
+      Logger.log(`Received from device (raw data): ${value}`, 'from-device')
+
       let message: SerialPortFormattedMessage
       try {
         message = this.messageMapper.fromRawString(value)
 
         const fromHardwareMessage: any =
           this.config.hardwareMessages.find((hardwareMessage: any) => hardwareMessage.hardwareEventName! === message.appMessage.name)
+
+        if(!fromHardwareMessage) {
+          throw new Error(`No hardware message found for message: ${JSON.stringify(message)}. Please check your configuration!`)
+        }
 
         const eventInstance: any = fromHardwareMessage["create"](message)
 

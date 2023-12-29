@@ -11,24 +11,28 @@ import {
 import {
   PinValueChangedHardwareMessageHandler
 } from "../../../../nestjs-serial-port/src/lib/example/event-handlers/pin-value-changed-hardware-message.handler";
+import {ScheduleModule} from '@nestjs/schedule';
+import {TasksService} from "./tasks.service";
 
 @Module({
   imports: [
     CqrsModule,
+    ScheduleModule.forRoot(),
     EventEmitterModule.forRoot({
       wildcard: true,
     }),
     NestjsSerialPortModule.register({
-      baudRate: 250000,
+      baudRate: 9600,
       deviceInfo: {vendorId: '1a86', productId: '7523'}, // Original Arduino: {vendorId: '2341', productId: '0043'};
-      targetDeviceSerialPortBufferSize: 64,
+      targetDeviceSerialPortBufferSize: 32,
       hardwareMessages: [
         PinValueChangedHardwareMessage
       ]
     })
   ],
   providers: [
-    PinValueChangedHardwareMessageHandler
+    PinValueChangedHardwareMessageHandler,
+    TasksService
   ]
 })
 export class AppModule implements OnApplicationBootstrap {
@@ -40,3 +44,4 @@ export class AppModule implements OnApplicationBootstrap {
     await this.service.connect()
   }
 }
+

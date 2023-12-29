@@ -10,6 +10,7 @@
     "@nestjs/cqrs": "^10.2.6",
     "@nestjs/event-emitter": "^2.0.3",
     "@nestjs/platform-express": "^10.0.2",
+    "@nestjs/schedule": "^4.0.0",
     "@swc/helpers": "~0.5.2",
     "axios": "^1.0.0",
     "class-transformer": "^0.5.1",

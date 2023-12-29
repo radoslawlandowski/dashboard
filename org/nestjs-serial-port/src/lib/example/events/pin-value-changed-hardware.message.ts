@@ -20,5 +20,5 @@ export class PinValueChangedHardwareMessage implements FromHardwareMessage<PinVa
   /**
     Pin 10 has value 1
    */
-  readonly exampleMessage: string = "<10,1>"
+  readonly exampleMessage: string = "<dp,10,1>"
 }
