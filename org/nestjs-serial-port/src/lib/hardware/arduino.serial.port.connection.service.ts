@@ -9,16 +9,17 @@ import {AppMessage} from "./app-message";
 import {InjectSerialPortConfig} from "../inject-serial-port.config";
 import {MessageMapper} from "./message-mapper";
 import {SerialPortFormattedMessage} from "./serial-port-formatted-message";
-import {NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
+import {DeviceInfo, DevicePath, NestjsSerialPortModuleConfiguration} from "../nestjs-serial-port-module.configuration";
 import {
   _UnrecognizedHardwareDashboardReceivedEvent,
   UnrecognizedHardwareDashboardEventPayload
 } from "../events/_unrecognized-hardware-dashboard-received-event";
+import {SerialPortStream} from "@serialport/stream";
 
 
 @Injectable()
 export class ArduinoSerialPortConnectionService implements SerialPortConnectionService {
-  readline: { port: SerialPort, readlineParser: ReadlineParser }
+  readline: { port: SerialPortStream, readlineParser: ReadlineParser } = {} as any
 
   constructor(@InjectSerialPortConfig() readonly config: NestjsSerialPortModuleConfiguration,
               readonly listener: SerialPortListenerService,
@@ -63,12 +64,43 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
   }
 
   async connect(): Promise<void> {
+    let path: string = await this.getDevicePath();
+
+    this.readline = this.listener.listen(path, this.config.baudRate)
+
+    this.readline.port.on('error', (err: Error) => {
+      Logger.error(err)
+      Logger.log(`Reconnecting...`)
+
+      this.connect()
+    })
+
+    this.setupReadlineParser();
+
+    Logger.log(`Success!`)
+  }
+
+  private async getDevicePath(): Promise<string> {
+    const deviceInfo = this.config.deviceInfo
+
+    if(Object(deviceInfo).hasOwnProperty('vendorId') && Object(deviceInfo).hasOwnProperty('productId')) {
+      return await this.connectByVendorIdAndProductId();
+    } else if (Object(deviceInfo).hasOwnProperty('devicePath')) {
+      let devicePath = (deviceInfo as DevicePath).devicePath;
+      Logger.log(`Using device path obtained from config: ${devicePath}`)
+      return devicePath;
+    } else {
+      throw new Error("Unrecognized device info! Please check your configuration!")
+    }
+  }
+
+  private async connectByVendorIdAndProductId(): Promise<string> {
+    const deviceInfo: DeviceInfo = this.config.deviceInfo as DeviceInfo
+
     let arduino: PortInfo | undefined
 
     do {
-      Logger.log(`Looking for device with vendorId: ${this.config.deviceInfo.vendorId} and productId: ${this.config.deviceInfo.productId}...`)
-
-      arduino = await this.listener.findDevice(this.config.deviceInfo)
+      arduino = await this.listener.findDevice(deviceInfo)
 
       if (!arduino) {
         Logger.error("Device not found!")
@@ -84,32 +116,21 @@ export class ArduinoSerialPortConnectionService implements SerialPortConnectionS
       }
     } while (!arduino)
 
-    Logger.log(`Successfully connected to device with vendorId: ${this.config.deviceInfo.vendorId} and productId: ${this.config.deviceInfo.productId}!`)
+    Logger.log(`Successfully connected to device with vendorId: ${deviceInfo.vendorId} and productId: ${deviceInfo.productId}!`)
 
-    this.readline = this.listener.listen(arduino.path, this.config.baudRate)
-
-    this.readline.port.on('error', (err: Error) => {
-      Logger.error(err)
-      Logger.log(`Reconnecting...`)
-
-      this.connect()
-    })
-
-    this.setupReadlineParser();
-
-    Logger.log(`Success!`)
+    return arduino.path;
   }
 
   private setupReadlineParser() {
     this.readline.readlineParser.on('data', (value: string) => {
       Logger.log(`Received from device (raw data): ${value}`, 'from-device')
 
-      let message: SerialPortFormattedMessage
+      let message: SerialPortFormattedMessage | undefined = undefined
       try {
         message = this.messageMapper.fromRawString(value)
 
         const fromHardwareMessage: any =
-          this.config.hardwareMessages.find((hardwareMessage: any) => hardwareMessage.hardwareEventName! === message.appMessage.name)
+          this.config.hardwareMessages.find((hardwareMessage: any) => hardwareMessage.hardwareEventName! === message!.appMessage.name)
 
         if(!fromHardwareMessage) {
           throw new Error(`No hardware message found for message: ${JSON.stringify(message)}. Please check your configuration!`)

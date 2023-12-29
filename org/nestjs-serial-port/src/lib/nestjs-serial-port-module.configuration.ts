@@ -1,6 +1,6 @@
 
 export interface NestjsSerialPortModuleConfiguration {
-  deviceInfo: DeviceInfo
+  deviceInfo: DeviceInfo | DevicePath
   baudRate: number
   targetDeviceSerialPortBufferSize: number
   hardwareMessages: object[]
@@ -9,5 +9,9 @@ export interface NestjsSerialPortModuleConfiguration {
 export interface DeviceInfo {
   vendorId: string
   productId: string
+}
+
+export interface DevicePath {
+  devicePath: string
 }
 
