@@ -3,10 +3,13 @@ import {ReadlineParser} from "@serialport/parser-readline";
 import {PortInfo} from "@serialport/bindings-interface"
 import {Injectable, Logger} from "@nestjs/common";
 import {SerialPortStream} from "@serialport/stream";
+import {MockBinding, MockBindingInterface} from "@serialport/binding-mock";
+import {AutoDetectTypes} from "@serialport/bindings-cpp";
 const { autoDetect } = require('@serialport/bindings-cpp')
 
 @Injectable()
 export class SerialPortListenerService {
+
   async listDevices(): Promise<PortInfo[]> {
     return SerialPort.list()
   }
@@ -22,7 +25,11 @@ export class SerialPortListenerService {
     baudRate: number = 9600,
   ): {port: SerialPortStream, readlineParser: ReadlineParser} {
 
-    const binding = autoDetect()
+    let binding: AutoDetectTypes | MockBindingInterface = autoDetect()
+
+    if (process.env["NODE_SERIAL_PORT_TEST"]) {
+      binding = MockBinding
+    }
 
     const port = new SerialPortStream({ binding, path: devicePath, baudRate: baudRate })
 

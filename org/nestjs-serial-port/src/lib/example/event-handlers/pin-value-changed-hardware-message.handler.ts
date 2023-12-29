@@ -1,7 +1,9 @@
 import {OnEvent} from "@nestjs/event-emitter";
 import {Injectable, Logger} from "@nestjs/common";
-import {PinValueChangedHardwareMessage} from "../events/pin-value-changed-hardware.message";
-import {APP_EVENT_NAME_PROP} from "../../hardware/hardware-message-decorators";
+import {
+  FROM_DEVICE_PIN_VALUE_CHANGED_EVENT,
+  PinValueChangedHardwareMessage
+} from "../events/pin-value-changed-hardware.message";
 
 @Injectable()
 export class PinValueChangedHardwareMessageHandler {
@@ -9,8 +11,8 @@ export class PinValueChangedHardwareMessageHandler {
   constructor() {
   }
 
-  @OnEvent(PinValueChangedHardwareMessage[APP_EVENT_NAME_PROP], { async: true })
-    async handle(event: PinValueChangedHardwareMessage) {
-        Logger.log(`Received event about hardware pin value changed: ${JSON.stringify(event)}`, 'from-device')
-    }
+  @OnEvent(FROM_DEVICE_PIN_VALUE_CHANGED_EVENT, {async: true})
+  async handle(event: PinValueChangedHardwareMessage) {
+    Logger.log(`Received event about hardware pin value changed: ${JSON.stringify(event)}`, 'from-device')
+  }
 }

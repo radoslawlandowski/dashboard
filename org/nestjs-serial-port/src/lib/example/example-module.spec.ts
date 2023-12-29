@@ -1,5 +1,5 @@
 import {Test, TestingModule} from '@nestjs/testing'
-import {MockBinding} from '@serialport/binding-mock'
+import {MockBinding, MockPortBinding} from '@serialport/binding-mock'
 import {Module} from "@nestjs/common";
 import {EventEmitterModule} from "@nestjs/event-emitter";
 import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
@@ -7,11 +7,17 @@ import {PinValueChangedHardwareMessage} from "./events/pin-value-changed-hardwar
 import {SerialPortListenerService} from "../hardware/serial-port-listener.service";
 import {ArduinoSerialPortConnectionService} from "../hardware/arduino.serial.port.connection.service";
 import {DefaultAppMessage} from "../hardware/app-message";
+import {PinValueChangedHardwareMessageHandler} from "./event-handlers/pin-value-changed-hardware-message.handler";
+import {TasksService} from "../../../../apps/example-serial-port-app/src/app/tasks.service";
+import {CqrsModule} from "@nestjs/cqrs";
+
+process.env["NODE_SERIAL_PORT_TEST"] = 'true'
 
 const devicePath = '/dev/example'
 
 @Module({
   imports: [
+    CqrsModule,
     EventEmitterModule.forRoot({
       wildcard: true,
     }),
@@ -23,6 +29,9 @@ const devicePath = '/dev/example'
         PinValueChangedHardwareMessage
       ]
     })
+  ],
+    providers: [
+      PinValueChangedHardwareMessageHandler
   ]
 })
 export class ExampleTestModule {
@@ -39,10 +48,12 @@ describe('Test', function () {
       ],
     }).compile()
 
-    MockBinding.reset()
-    MockBinding.createPort(devicePath, {echo: true, record: true})
+    await moduleFixture.init()
 
     arduinoSerialPortConnectionService = moduleFixture.get(ArduinoSerialPortConnectionService)
+
+    MockBinding.reset()
+    MockBinding.createPort(devicePath, {echo: true, record: true})
   })
 
   beforeEach(async () => {
@@ -53,12 +64,17 @@ describe('Test', function () {
       await arduinoSerialPortConnectionService.connect()
 
       await arduinoSerialPortConnectionService.write(new DefaultAppMessage(["dp", "1", "1"]))
-      //
-      // arduinoSerialPortConnectionService.readline.port.on('data', function (data) {
-      //   console.log('Data:', data.toString())
-      // })
+      await arduinoSerialPortConnectionService.write(new DefaultAppMessage(["dp", "2", "1"]))
 
-      expect(true).toBeTruthy()
+      const port: MockPortBinding = arduinoSerialPortConnectionService.readline.port.port as unknown as MockPortBinding
+
+      const messages = port.recording.toString()
+
+      expect(messages).toEqual('<dp,1,1><dp,2,1>')
     })
   })
 })
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

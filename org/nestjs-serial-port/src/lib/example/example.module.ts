@@ -2,6 +2,7 @@ import {Module} from '@nestjs/common';
 import {NestjsSerialPortModule} from "@org/nestjs-serial-port";
 import {PinValueChangedHardwareMessage} from "./events/pin-value-changed-hardware.message";
 import {EventEmitterModule} from "@nestjs/event-emitter";
+import {PinValueChangedHardwareMessageHandler} from "./event-handlers/pin-value-changed-hardware-message.handler";
 
 @Module({
   imports: [
@@ -16,6 +17,9 @@ import {EventEmitterModule} from "@nestjs/event-emitter";
         PinValueChangedHardwareMessage
       ]
     })
+  ],
+  providers: [
+    PinValueChangedHardwareMessageHandler
   ]
 })
 export class ExampleModule {
