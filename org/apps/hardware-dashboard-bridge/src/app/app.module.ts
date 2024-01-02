@@ -14,6 +14,9 @@ import {
 import {GitDashboardInterface} from "./git-dashboard-interface.service";
 import {GitDashboardEventHandler} from "./event-handlers/git-dashboard-event-handler";
 import {GitDashboardEvent} from "./contract/events/git-dashboard-event";
+import {ScheduleModule} from "@nestjs/schedule";
+import {GitStatusCron} from "./git-status-cron";
+import {GitStatusEventHandler} from "./event-handlers/git-status-event-handler";
 
 const systemDataEventHandlers = [
   DockerStatsEventHandler
@@ -21,6 +24,7 @@ const systemDataEventHandlers = [
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     EventEmitterModule.forRoot({
       wildcard: true,
     }),
@@ -42,9 +46,11 @@ const systemDataEventHandlers = [
   providers: [
     GitDashboardInterface,
     GitDashboardEventHandler,
+    GitStatusEventHandler,
     WebsocketGateway,
     DistinctUntilChangedInterceptor,
-    ...systemDataEventHandlers
+    ...systemDataEventHandlers,
+    GitStatusCron
   ],
 })
 export class AppModule implements OnApplicationBootstrap {

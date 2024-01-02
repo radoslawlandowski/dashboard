@@ -36,7 +36,7 @@ export class GitCommandLineInterface implements GitInterface {
   }
 
   async status(): Promise<string> {
-    return await this.runCommand('git', ['diff', '--quiet', '--exit-code', '--cached']);
+    return await this.runCommand('git', ['status' , '-s']);
   }
 
   async branch(): Promise<string> {
