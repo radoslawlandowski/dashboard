@@ -1,27 +1,12 @@
-import {Body, Controller, Post, Query} from '@nestjs/common';
-import {EventEmitter2} from "@nestjs/event-emitter";
-import {
-  DigitalPinHardwareDashboardReceivedEvent
-} from "./contract/events/digital-pin-hardware-dashboard-received-event";
-import {CommandBus} from "@nestjs/cqrs";
-import {SetDigitalPinHardwareDashboardCommand} from "./contract/commands/set-digital-pin-hardware-dashboard-command";
-import {SetAnalogPinHardwareDashboardCommand} from "./contract/commands/set-analog-pin-hardware-dashboard-command";
+import {Body, Controller, Post} from '@nestjs/common';
 import {
   ArduinoSerialPortConnectionService
-} from "../../../../nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
+} from "@elense/nestjs-serial-port/src/lib/hardware/arduino.serial.port.connection.service";
+import {DefaultAppMessage} from "@elense/nestjs-serial-port/src/lib/hardware/app-message";
 
 @Controller('/hardware-dashboard-bridge')
 export class AppController {
-  constructor(private readonly service: ArduinoSerialPortConnectionService,
-              private readonly commandBus: CommandBus,
-              private readonly eventEmitter: EventEmitter2) {
-  }
-
-  @Post('send-ws-message')
-  async data(@Query('pin') pin: number, @Query('value') value: 0 | 1): Promise<boolean> {
-    return this.eventEmitter.emit('hardware-dashboard.received.digital-pin', new DigitalPinHardwareDashboardReceivedEvent(pin.toString(), {
-      value: value
-    }))
+  constructor(private readonly service: ArduinoSerialPortConnectionService) {
   }
 
   @Post('connect')
@@ -43,20 +28,11 @@ export class AppController {
   }
 
   @Post('command/set-digital-pin')
-  async setDigitalPin(@Body() value: SetDigitalPinHardwareDashboardCommand): Promise<object> {
-    await this.commandBus.execute(value)
+  async setDigitalPin(@Body() value: any): Promise<object> {
+    await this.service.write(new DefaultAppMessage([0, value.value]))
 
     return {
       "message": "Successfully Set Digital Pin!"
-    }
-  }
-
-  @Post('command/set-analog-pin')
-  async setAnalogPin(@Body() value: SetAnalogPinHardwareDashboardCommand): Promise<object> {
-    await this.commandBus.execute(value)
-
-    return {
-      "message": "Successfully Set Analog Pin!"
     }
   }
 }

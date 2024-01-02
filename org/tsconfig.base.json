@@ -15,6 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@elense/nestjs-serial-port-cqrs": [
+        "@elense/nestjs-serial-port-cqrs/src/index.ts"
+      ],
       "@org/nestjs-serial-port": ["nestjs-serial-port/src/index.ts"]
     }
   },

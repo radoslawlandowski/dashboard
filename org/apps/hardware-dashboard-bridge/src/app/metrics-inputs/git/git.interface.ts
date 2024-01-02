@@ -9,9 +9,7 @@ export interface GitReadInterface {
 
 export interface GitWriteInterface {
   fetch(): Promise<string>
-
   pull(): Promise<string>
-
   checkout(branchName: string): Promise<string>
 }
 
